@@ -9,7 +9,7 @@ use csv::{ReaderBuilder, Writer};
 #[derive(Parser, Debug)]
 #[command(version, about)]
 struct Cli {
-    /// Path to input CSV file
+    /// Path to input CSV file, with an x column and y column (in order)
     input: String,
 
     /// Concavity parameter to use
@@ -35,6 +35,7 @@ fn main() -> anyhow::Result<()> {
         args.concavity
     );
 
+    // Read input points
     let f = File::open(input)?;
     let mut reader = ReaderBuilder::new()
         .has_headers(args.headers)
@@ -51,8 +52,10 @@ fn main() -> anyhow::Result<()> {
         })
         .collect::<Result<Vec<_>, _>>()?;
 
+    // Generate hull
     let out_points = concave_hull(&in_points);
 
+    // Output
     let mut writer = Writer::from_path(output)?;
     for p in out_points {
         writer.write_record(&[p.x.to_string(), p.y.to_string()])?
