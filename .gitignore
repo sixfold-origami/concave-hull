@@ -9,3 +9,4 @@ Makefile
 .vscode
 .idea
 output.csv
+output.png
