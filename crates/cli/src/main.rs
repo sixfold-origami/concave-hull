@@ -53,7 +53,7 @@ fn main() -> anyhow::Result<()> {
         .collect::<Result<Vec<_>, _>>()?;
 
     // Generate hull
-    let out_points = concave_hull(&in_points);
+    let out_points = concave_hull(&in_points, args.concavity);
 
     // Output
     let mut writer = Writer::from_path(output)?;

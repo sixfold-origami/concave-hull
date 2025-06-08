@@ -8,3 +8,4 @@
 - Benches
 - Examples
 - Compare to `geo`'s impl
+- Use a non-zero f32 for the concavity parameter?
