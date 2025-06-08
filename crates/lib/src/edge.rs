@@ -51,4 +51,20 @@ impl Edge {
     pub fn norm_squared(&self) -> f32 {
         self.segment.scaled_direction().norm_squared()
     }
+
+    /// Splits self in two by inserting `point` in the middle of the edge
+    pub fn split_by(&self, point: Point, idx: usize) -> (Self, Self) {
+        let e1 = Self {
+            i: self.i,
+            j: idx,
+            segment: Segment::new(self.segment.a, point),
+        };
+        let e2 = Self {
+            i: idx,
+            j: self.j,
+            segment: Segment::new(point, self.segment.b),
+        };
+
+        (e1, e2)
+    }
 }

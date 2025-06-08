@@ -53,12 +53,12 @@ fn main() -> anyhow::Result<()> {
         .collect::<Result<Vec<_>, _>>()?;
 
     // Generate hull
-    let out_points = concave_hull(&in_points, args.concavity);
+    let hull = concave_hull(&in_points, args.concavity);
 
     // Output
     let mut writer = Writer::from_path(output)?;
-    for p in out_points {
-        writer.write_record(&[p.x.to_string(), p.y.to_string()])?
+    for edge in hull {
+        writer.write_record(&[edge.segment.a.x.to_string(), edge.segment.a.y.to_string()])?
     }
 
     Ok(())
