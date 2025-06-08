@@ -35,15 +35,11 @@ impl PartialOrd for Edge {
 }
 
 impl Edge {
-    pub fn from_points_and_idx(points: &[Point], idx: usize, total_edges: usize) -> Self {
-        let j = (idx + 1) % total_edges;
-        let p = points[idx];
-        let next = points[j];
-
+    pub fn new(i: usize, j: usize, p1: Point, p2: Point) -> Self {
         Self {
-            i: idx,
+            i,
             j,
-            segment: Segment::new(p, next),
+            segment: Segment::new(p1, p2),
         }
     }
 

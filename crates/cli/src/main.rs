@@ -28,7 +28,7 @@ struct Cli {
     img_output: Option<String>,
 
     /// Whether the input CSV has headers
-    #[arg(short, long, default_value_t = false)]
+    #[arg(short = 'd', long, default_value_t = false)]
     headers: bool,
 }
 
