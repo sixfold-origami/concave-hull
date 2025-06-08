@@ -6,11 +6,11 @@ use parry2d::{
     transformation::convex_hull_idx,
 };
 
-use crate::edge::Edge;
-
-pub type Point = ParryPoint<f32>;
-
 mod edge;
+
+pub use edge::Edge;
+pub use parry2d;
+pub type Point = ParryPoint<f32>;
 
 pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<Edge> {
     // Get the convex hull from parry
@@ -41,7 +41,7 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<Edge> {
                 let e_v = edge.segment.scaled_direction();
 
                 let angle = e_v.angle(&e1).max(e_v.angle(&e2));
-                if best.as_ref().map(|best| best.2 > angle).unwrap_or_default() {
+                if best.as_ref().map(|best| best.2 > angle).unwrap_or(true) {
                     best = Some((i, p, angle));
                 }
             }
