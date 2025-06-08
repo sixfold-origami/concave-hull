@@ -1,14 +1,7 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+use parry2d::{math::Point as ParryPoint, transformation::convex_hull};
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub type Point = ParryPoint<f32>;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub fn concave_hull(points: &[Point]) -> Vec<Point> {
+    convex_hull(points)
 }
