@@ -5,6 +5,7 @@ use concave_hull::{
 use imageproc::{
     drawing::{draw_filled_circle_mut, draw_line_segment_mut},
     image::{Rgb, RgbImage},
+    pixelops::interpolate,
 };
 
 /// Padding added to each side of the image, so that points aren't right up against the edge of the canvas
@@ -13,7 +14,8 @@ use imageproc::{
 const IMG_PADDING: f32 = 10.;
 
 const POINT_COLOR: Rgb<u8> = Rgb([255u8, 255u8, 255u8]);
-const SEGMENT_COLOR: Rgb<u8> = Rgb([255u8, 0u8, 0u8]);
+const FULL_SEGMENT_COLOR: Rgb<u8> = Rgb([255u8, 0u8, 0u8]);
+const FADED_SEGMENT_COLOR: Rgb<u8> = Rgb([255u8, 200u8, 200u8]);
 
 pub fn draw_points_and_hull(points: &[Point], hull: &[Point]) -> RgbImage {
     let aabb = local_point_cloud_aabb(points).loosened(IMG_PADDING);
@@ -37,14 +39,15 @@ pub fn draw_points_and_hull(points: &[Point], hull: &[Point]) -> RgbImage {
         let a = hull[i] - aabb.mins;
         let b = hull[j] - aabb.mins;
 
-        draw_filled_circle_mut(
-            &mut image,
-            (a.x as i32, a.y as i32),
-            point_size,
-            SEGMENT_COLOR,
+        // Interpolate from full to faded as we go around
+        let color = interpolate(
+            FADED_SEGMENT_COLOR,
+            FULL_SEGMENT_COLOR,
+            i as f32 / hull.len() as f32,
         );
 
-        draw_line_segment_mut(&mut image, (a.x, a.y), (b.x, b.y), SEGMENT_COLOR);
+        draw_filled_circle_mut(&mut image, (a.x as i32, a.y as i32), point_size, color);
+        draw_line_segment_mut(&mut image, (a.x, a.y), (b.x, b.y), color);
     }
 
     image
