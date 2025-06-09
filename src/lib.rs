@@ -26,7 +26,7 @@ pub use parry2d;
 /// - The index of the hull point in the original slice
 /// - The value of the point in the original slice
 ///
-/// The points are returned in clockwise order
+/// The points are returned in counter-clockwise order
 pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
     // Get the convex hull from parry
     let convex = convex_hull_idx(points);
