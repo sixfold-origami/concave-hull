@@ -76,8 +76,8 @@ fn main() -> anyhow::Result<()> {
         );
 
         let mut writer = Writer::from_path(point_output)?;
-        for edge in hull.iter() {
-            writer.write_record(&[edge.segment.a.x.to_string(), edge.segment.a.y.to_string()])?
+        for point in hull.iter() {
+            writer.write_record(&[point.1.x.to_string(), point.1.y.to_string()])?
         }
     }
 
@@ -87,7 +87,10 @@ fn main() -> anyhow::Result<()> {
             img_output.display()
         );
 
-        let image = draw_points_and_hull(&in_points, &hull);
+        let image = draw_points_and_hull(
+            &in_points,
+            &hull.iter().map(|(_, p)| *p).collect::<Vec<_>>(),
+        );
         image.save(img_output)?;
     }
 

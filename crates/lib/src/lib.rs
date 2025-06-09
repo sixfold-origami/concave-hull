@@ -6,13 +6,14 @@ use parry2d::{
     transformation::convex_hull_idx,
 };
 
+use edge::Edge;
+
 mod edge;
 
-pub use edge::Edge;
 pub use parry2d;
 pub type Point = ParryPoint<f32>;
 
-pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<Edge> {
+pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
     // Get the convex hull from parry
     let convex = convex_hull_idx(points);
 
@@ -90,6 +91,25 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<Edge> {
         concave_hull.push(edge);
     }
 
-    // TODO: Sort them so they're in CCW order
-    concave_hull
+    // Sort the edges in the hull end to end
+    // TODO: Can we get clever with pointer shenanigans to maintain this as we build the hull?
+    let mut sorted_hull = Vec::with_capacity(concave_hull.len());
+    let mut curr = concave_hull
+        .pop() // Start with an arbitrary edge
+        .expect("Concave hull has at least one point");
+
+    while !concave_hull.is_empty() {
+        // Walk the pointers, grabbing edges in order
+        let next = concave_hull
+            .iter()
+            .position(|edge| edge.i == curr.j)
+            .expect("Concave hull is well-formed");
+        let next = concave_hull.swap_remove(next);
+
+        sorted_hull.push((curr.i, curr.segment.a));
+        curr = next;
+    }
+    sorted_hull.push((curr.i, curr.segment.a));
+
+    sorted_hull
 }

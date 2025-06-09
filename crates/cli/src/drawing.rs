@@ -1,5 +1,5 @@
 use concave_hull::{
-    Edge, Point,
+    Point,
     parry2d::bounding_volume::{BoundingVolume, details::local_point_cloud_aabb},
 };
 use imageproc::{
@@ -15,7 +15,7 @@ const IMG_PADDING: f32 = 10.;
 const POINT_COLOR: Rgb<u8> = Rgb([255u8, 255u8, 255u8]);
 const SEGMENT_COLOR: Rgb<u8> = Rgb([255u8, 0u8, 0u8]);
 
-pub fn draw_points_and_hull(points: &[Point], hull: &[Edge]) -> RgbImage {
+pub fn draw_points_and_hull(points: &[Point], hull: &[Point]) -> RgbImage {
     let aabb = local_point_cloud_aabb(points).loosened(IMG_PADDING);
     let point_size = (aabb.extents().max() / 250.).max(2.) as i32;
     // let line_width = (aabb.extents().max() / 500.).max(2.) as u32;
@@ -32,9 +32,10 @@ pub fn draw_points_and_hull(points: &[Point], hull: &[Edge]) -> RgbImage {
         );
     }
 
-    for edge in hull {
-        let a = edge.segment.a - aabb.mins;
-        let b = edge.segment.b - aabb.mins;
+    for i in 0..hull.len() {
+        let j = (i + 1) % hull.len();
+        let a = hull[i] - aabb.mins;
+        let b = hull[j] - aabb.mins;
 
         draw_filled_circle_mut(
             &mut image,
