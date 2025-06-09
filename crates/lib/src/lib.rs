@@ -18,16 +18,17 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<Edge> {
 
     // Heap up the convex edges by length
     let mut edge_heap = BinaryHeap::with_capacity(convex.len());
+    let mut boundary_points: HashSet<usize> = HashSet::with_capacity(convex.len());
     for id in 0..convex.len() {
         let i = convex[id];
         let j = convex[(id + 1) % convex.len()];
 
+        boundary_points.insert(i);
         edge_heap.push(Edge::new(i, j, points[i], points[j]));
     }
 
     // Start opening the gift
     let concavity = concavity.powi(2); // Square the concavity limit to make the comparisons slightly faster
-    let mut boundary_points: HashSet<usize> = HashSet::with_capacity(convex.len());
     let mut concave_hull: Vec<Edge> = Vec::with_capacity(convex.len());
 
     'edges: while let Some(edge) = edge_heap.pop() {
