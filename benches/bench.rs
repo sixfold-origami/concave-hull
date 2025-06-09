@@ -37,7 +37,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     let concaveman_1k = load_data("./test_data/concaveman_1k.csv");
     group.bench_function("concaveman_1k", |b| {
-        b.iter(|| concave_hull(&concaveman_1k, 150.))
+        b.iter(|| concave_hull(&concaveman_1k, 1000.))
     });
 }
 
