@@ -1,6 +1,7 @@
 //! Basic usage example
 //!
-//! TODO: Make this module doc better
+//! Here, we compute the concave hull of a sample point cloud dataset.
+//! To get a better visualization, you can use the CLI tool (found in ../../cli) to generate an image of the hull.
 
 use concave_hull::{Point, concave_hull};
 
@@ -33,7 +34,9 @@ const DATA: [Point; 24] = [
 ];
 
 pub fn main() {
+    // 40 is a reasonable default concavity parameter
     let hull = concave_hull(&DATA, 40.);
 
-    println!("{hull:?}");
+    println!("Computed hull: {hull:?}");
+    // I really wish I had more to say here, but I don't. It's that simple!
 }
