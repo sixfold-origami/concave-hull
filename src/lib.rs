@@ -3,15 +3,12 @@
 
 use std::collections::{BinaryHeap, HashSet};
 
-use parry2d::{
-    math::{Isometry, Point as ParryPoint},
-    query::intersection_test,
-    transformation::convex_hull_idx,
-};
+use parry2d::{math::Point as ParryPoint, transformation::convex_hull_idx};
 
 use edge::Edge;
 
 mod edge;
+mod segment_intersect;
 
 /// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
 ///
@@ -19,7 +16,13 @@ mod edge;
 pub type Point = ParryPoint<f32>;
 pub use parry2d;
 
+use crate::segment_intersect::edges_intersect;
+
 /// Computes the concave hull of the provided point cloud, using the provided concavity parameter
+///
+/// Makes the following assumption about the point cloud:
+/// - No points are repeated
+/// - There are at least 3 points present (TODO: Add special cases for this instead)
 ///
 /// See the crate-level docs for guidance on picking the concavity parameter.
 /// The returned [`Vec`] contains a tuple of:
@@ -77,23 +80,10 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
 
                 // Check if the new edges would intersect any existing ones
                 // TODO: BVH might be faster? Hard to say given how frequently we'd be adding new segments
-                // Note: Unsure if we should also check edges in the heap
-                if concave_hull.iter().all(|edge| {
-                    !(intersection_test(
-                        &Isometry::default(),
-                        &edge.segment,
-                        &Isometry::default(),
-                        &e1.segment,
-                    )
-                    .expect("Segments can be intersected")
-                        || intersection_test(
-                            &Isometry::default(),
-                            &edge.segment,
-                            &Isometry::default(),
-                            &e2.segment,
-                        )
-                        .expect("Segments can be intersected"))
-                }) {
+                if concave_hull
+                    .iter()
+                    .all(|edge| !(edges_intersect(edge, &e1) || edges_intersect(edge, &e2)))
+                {
                     edge_heap.push(e1);
                     edge_heap.push(e2);
                     boundary_points.insert(best.0);
