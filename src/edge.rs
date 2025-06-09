@@ -4,10 +4,14 @@ use parry2d::shape::Segment;
 
 use crate::Point;
 
+/// Helper struct for edges in the hull
 #[derive(Debug, Clone)]
 pub struct Edge {
+    /// Index of the first point
     pub i: usize,
+    /// Index of the second point
     pub j: usize,
+    /// Segment of the edge (containing the actual values of the two points)
     pub segment: Segment,
 }
 
@@ -35,11 +39,11 @@ impl PartialOrd for Edge {
 }
 
 impl Edge {
-    pub fn new(i: usize, j: usize, p1: Point, p2: Point) -> Self {
+    pub fn new(i: usize, j: usize, points: &[Point]) -> Self {
         Self {
             i,
             j,
-            segment: Segment::new(p1, p2),
+            segment: Segment::new(points[i], points[j]),
         }
     }
 

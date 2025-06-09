@@ -24,9 +24,10 @@ In the `cli` folder is a small CLI that exposes the library's functionality.
 
 Basic usage:
 ```
-cargo run -p cli --release -- -i ./output.png 50 ./test_data/question_mark.csv
+cargo run -p cli --release -- 50 ./test_data/question_mark.csv -i ./output.png
 ```
-will generate the above question mark image
+will generate the above question mark image.
+The slight gradient on the hull shows the winding: the first edges are fully red, then they fade to pink.
 
 For more information:
 ```

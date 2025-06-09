@@ -39,7 +39,7 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
         let j = convex[(id + 1) % convex.len()];
 
         boundary_points.insert(i);
-        edge_heap.push(Edge::new(i, j, points[i], points[j]));
+        edge_heap.push(Edge::new(i, j, points));
     }
 
     // Start opening the gift
