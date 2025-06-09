@@ -1,3 +1,6 @@
+#![doc = include_str!("../README.md")]
+#![warn(missing_docs)]
+
 use std::collections::{BinaryHeap, HashSet};
 
 use parry2d::{
@@ -10,9 +13,20 @@ use edge::Edge;
 
 mod edge;
 
-pub use parry2d;
+/// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
+///
+/// This is also the point type used in function signatures and returns
 pub type Point = ParryPoint<f32>;
+pub use parry2d;
 
+/// Computes the concave hull of the provided point cloud, using the provided concavity parameter
+///
+/// See the crate-level docs for guidance on picking the concavity parameter.
+/// The returned [`Vec`] contains a tuple of:
+/// - The index of the hull point in the original slice
+/// - The value of the point in the original slice
+///
+/// The points are returned in clockwise order
 pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
     // Get the convex hull from parry
     let convex = convex_hull_idx(points);

@@ -66,7 +66,7 @@ fn main() -> anyhow::Result<()> {
 
     // Output
     if point_output.is_none() && img_output.is_none() {
-        println!("No output provided. Terminating.");
+        println!("No output file provided. Terminating.");
     }
 
     if let Some(point_output) = point_output {

@@ -1,8 +1,0 @@
-[package]
-name = "concave_hull"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-nalgebra = "0.33.2"
-parry2d = "0.21.1"
