@@ -33,7 +33,6 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<Edge> {
     'edges: while let Some(edge) = edge_heap.pop() {
         // TODO: scale this check based on local density
         if edge.norm_squared() > concavity {
-            println!("Split time: {:?}", edge);
             // This edge is long enough that we should try to split it
 
             // Find the best point to add in the middle
@@ -44,7 +43,7 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<Edge> {
                     // Do not consider points that are already on the edge
                     continue 'points;
                 }
-                let e1 = edge.segment.a - p; // Only comparing angles, so order doesn't matter here
+                let e1 = p - edge.segment.a;
                 let e2 = edge.segment.b - p;
                 let e_v = edge.segment.scaled_direction();
 
@@ -63,8 +62,8 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<Edge> {
                 // Check if the new edges would intersect any existing ones
                 // TODO: BVH might be faster? Hard to say given how frequently we'd be adding new segments
                 // Note: Unsure if we should also check edges in the heap
-                if concave_hull.iter().any(|edge| {
-                    intersection_test(
+                if concave_hull.iter().all(|edge| {
+                    !(intersection_test(
                         &Isometry::default(),
                         &edge.segment,
                         &Isometry::default(),
@@ -77,7 +76,7 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<Edge> {
                             &Isometry::default(),
                             &e2.segment,
                         )
-                        .expect("Segments can be intersected")
+                        .expect("Segments can be intersected"))
                 }) {
                     edge_heap.push(e1);
                     edge_heap.push(e2);
@@ -87,7 +86,6 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<Edge> {
             }
         }
 
-        println!("Push as is: {:?}", edge);
         concave_hull.push(edge);
     }
 

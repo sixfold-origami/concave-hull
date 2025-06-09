@@ -16,15 +16,14 @@ const POINT_COLOR: Rgb<u8> = Rgb([255u8, 255u8, 255u8]);
 const SEGMENT_COLOR: Rgb<u8> = Rgb([255u8, 0u8, 0u8]);
 
 pub fn draw_points_and_hull(points: &[Point], hull: &[Edge]) -> RgbImage {
-    let aabb = local_point_cloud_aabb(points);
-    let canvas = aabb.loosened(IMG_PADDING);
+    let aabb = local_point_cloud_aabb(points).loosened(IMG_PADDING);
     let point_size = (aabb.extents().max() / 250.).max(2.) as i32;
     // let line_width = (aabb.extents().max() / 500.).max(2.) as u32;
 
-    let mut image = RgbImage::new(canvas.extents().x as u32, canvas.extents().y as u32);
+    let mut image = RgbImage::new(aabb.extents().x as u32, aabb.extents().y as u32);
 
     for point in points {
-        let point = point - canvas.mins;
+        let point = point - aabb.mins;
         draw_filled_circle_mut(
             &mut image,
             (point.x as i32, point.y as i32),
@@ -34,8 +33,8 @@ pub fn draw_points_and_hull(points: &[Point], hull: &[Edge]) -> RgbImage {
     }
 
     for edge in hull {
-        let a = edge.segment.a - canvas.mins;
-        let b = edge.segment.b - canvas.mins;
+        let a = edge.segment.a - aabb.mins;
+        let b = edge.segment.b - aabb.mins;
 
         draw_filled_circle_mut(
             &mut image,
