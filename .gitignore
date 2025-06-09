@@ -10,3 +10,5 @@ Makefile
 .idea
 output.csv
 output.png
+tmp.*
+*.tmp
