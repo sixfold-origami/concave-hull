@@ -18,7 +18,7 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<Edge> {
 
     // Heap up the convex edges by length
     let mut edge_heap = BinaryHeap::with_capacity(convex.len());
-    let mut boundary_points: HashSet<usize> = HashSet::with_capacity(convex.len());
+    let mut boundary_points = HashSet::with_capacity(convex.len());
     for id in 0..convex.len() {
         let i = convex[id];
         let j = convex[(id + 1) % convex.len()];

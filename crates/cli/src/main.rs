@@ -35,8 +35,8 @@ struct Cli {
 fn main() -> anyhow::Result<()> {
     let args = Cli::parse();
     let input = PathBuf::from(args.input);
-    let point_output = args.point_output.map(|path| PathBuf::from(path));
-    let img_output = args.img_output.map(|path| PathBuf::from(path));
+    let point_output = args.point_output.map(PathBuf::from);
+    let img_output = args.img_output.map(PathBuf::from);
 
     println!(
         "Generating concave hull for {} [concavity: {}]",

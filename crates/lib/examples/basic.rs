@@ -35,5 +35,5 @@ const DATA: [Point; 24] = [
 pub fn main() {
     let hull = concave_hull(&DATA, 40.);
 
-    println!("{:?}", hull);
+    println!("{hull:?}");
 }
