@@ -44,3 +44,98 @@ pub fn edges_intersect(e1: &Edge, e2: &Edge) -> bool {
         t >= 0. && t <= 1. && u >= 0. && u <= 1.
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::Point;
+
+    use super::*;
+
+    /// An array of points in a numpad grid, in numpad order
+    ///
+    /// 7 8 9
+    /// 4 5 6
+    /// 1 2 3
+    /// 0
+    const POINTS: [Point; 10] = [
+        Point::new(0., 0.),
+        Point::new(0., 1.),
+        Point::new(1., 1.),
+        Point::new(2., 1.),
+        Point::new(0., 2.),
+        Point::new(1., 2.),
+        Point::new(2., 2.),
+        Point::new(0., 3.),
+        Point::new(1., 3.),
+        Point::new(2., 3.),
+    ];
+
+    #[test]
+    fn duplicate_edge() {
+        let e1 = Edge::new(0, 1, &POINTS);
+        let e2 = Edge::new(0, 1, &POINTS);
+
+        assert!(edges_intersect(&e1, &e2));
+    }
+
+    #[test]
+    fn connected_edges_e1_first() {
+        let e1 = Edge::new(0, 1, &POINTS);
+        let e2 = Edge::new(1, 4, &POINTS);
+
+        assert!(!edges_intersect(&e1, &e2));
+    }
+
+    #[test]
+    fn connected_edges_e2_first() {
+        let e1 = Edge::new(1, 4, &POINTS);
+        let e2 = Edge::new(0, 1, &POINTS);
+
+        assert!(!edges_intersect(&e1, &e2));
+    }
+
+    #[test]
+    fn intersection_plus() {
+        let e1 = Edge::new(2, 8, &POINTS);
+        let e2 = Edge::new(4, 6, &POINTS);
+
+        assert!(edges_intersect(&e1, &e2));
+        assert!(edges_intersect(&e2, &e1));
+    }
+
+    #[test]
+    fn intersection_x() {
+        let e1 = Edge::new(1, 9, &POINTS);
+        let e2 = Edge::new(3, 7, &POINTS);
+
+        assert!(edges_intersect(&e1, &e2));
+        assert!(edges_intersect(&e2, &e1));
+    }
+
+    #[test]
+    fn intersection_t() {
+        let e1 = Edge::new(1, 7, &POINTS);
+        let e2 = Edge::new(4, 6, &POINTS);
+
+        assert!(edges_intersect(&e1, &e2));
+        assert!(edges_intersect(&e2, &e1));
+    }
+
+    #[test]
+    fn parallel_horizontal() {
+        let e1 = Edge::new(1, 3, &POINTS);
+        let e2 = Edge::new(4, 6, &POINTS);
+
+        assert!(!edges_intersect(&e1, &e2));
+        assert!(!edges_intersect(&e2, &e1));
+    }
+
+    #[test]
+    fn parallel_vertical() {
+        let e1 = Edge::new(1, 4, &POINTS);
+        let e2 = Edge::new(3, 9, &POINTS);
+
+        assert!(!edges_intersect(&e1, &e2));
+        assert!(!edges_intersect(&e2, &e1));
+    }
+}

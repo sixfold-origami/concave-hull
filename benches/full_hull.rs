@@ -22,7 +22,7 @@ fn load_data(path: &str) -> Vec<Point> {
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let mut group = c.benchmark_group("benches");
+    let mut group = c.benchmark_group("full_hull");
     group
         .measurement_time(Duration::from_secs_f32(60.))
         .sample_size(1000);
@@ -41,5 +41,5 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, criterion_benchmark);
-criterion_main!(benches);
+criterion_group!(full_hull, criterion_benchmark);
+criterion_main!(full_hull);
