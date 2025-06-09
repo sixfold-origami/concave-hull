@@ -24,7 +24,7 @@ fn load_data(path: &str) -> Vec<Point> {
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("benches");
     group
-        .measurement_time(Duration::from_secs_f32(30.))
+        .measurement_time(Duration::from_secs_f32(60.))
         .sample_size(1000);
 
     let polygon = load_data("./test_data/polygon.csv");
@@ -37,7 +37,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     let concaveman_1k = load_data("./test_data/concaveman_1k.csv");
     group.bench_function("concaveman_1k", |b| {
-        b.iter(|| concave_hull(&concaveman_1k, 40.))
+        b.iter(|| concave_hull(&concaveman_1k, 150.))
     });
 }
 
