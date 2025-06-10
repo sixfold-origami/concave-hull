@@ -27,7 +27,14 @@ use std::collections::{BinaryHeap, HashSet};
 
 use parry2d::{math::Point as ParryPoint, transformation::convex_hull_idx};
 
+#[cfg(feature = "benches")]
+pub use edge::Edge;
+#[cfg(not(feature = "benches"))]
 use edge::Edge;
+#[cfg(feature = "benches")]
+pub use segment_intersect::edges_intersect;
+#[cfg(not(feature = "benches"))]
+use segment_intersect::edges_intersect;
 
 mod edge;
 mod segment_intersect;
@@ -37,8 +44,6 @@ mod segment_intersect;
 /// This is also the point type used in function signatures and returns
 pub type Point = ParryPoint<f32>;
 pub use parry2d;
-
-use crate::segment_intersect::edges_intersect;
 
 /// Computes the concave hull of the provided point cloud, using the provided concavity parameter
 ///

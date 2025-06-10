@@ -39,6 +39,7 @@ impl PartialOrd for Edge {
 }
 
 impl Edge {
+    /// Constructs a new [`Self`] from a list of points and two (ordered) indices into that list
     pub fn new(i: usize, j: usize, points: &[Point]) -> Self {
         Self {
             i,
@@ -48,7 +49,7 @@ impl Edge {
     }
 
     #[inline]
-    pub fn norm_squared(&self) -> f32 {
+    pub(crate) fn norm_squared(&self) -> f32 {
         self.segment.scaled_direction().norm_squared()
     }
 

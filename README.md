@@ -18,6 +18,11 @@ Here is some guidance:
 - `+inf` prevents any concavity, returning the convex hull of the point cloud
 - `40` is usually a good starting point
 
+## Features
+
+This crate has one feature, `benches`, which is only used for benchmarks.
+End users of this library should never enable it.
+
 ## The CLI Crate
 
 In the `cli` folder is a small CLI that exposes the library's functionality.
