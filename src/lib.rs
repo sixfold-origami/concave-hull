@@ -1,4 +1,26 @@
-#![doc = include_str!("../README.md")]
+//! # concave-hull
+//!
+//! `concave-hull` is an implementation of the [gift opening concave hull algorithm](https://deeplearning.lipingyang.org/wp-content/uploads/2019/07/Project-10-report_Implementation-of-a-fast-and-efficient-concave-hull-algorithm.pdf), written in Rust.
+//!
+//! The top level export is a function called `concave_hull`.
+//! See the docs for that function for details on usage, or check the example at `examples/basic.rs`
+//!
+//! ## Choosing the concavity parameter
+//!
+//! Concave hulls are a somewhat subjective thing.
+//! While it's possible to generate a concave hull which minimizes the area of the final polygon, this is often undesirable, as it leads to very crinkly shapes.
+//! In general, you should pick a concavity parameter which produces "desirable" results on your datasets, whatever that means for your application.
+//! Here is some guidance:
+//! - The concavity parameter ranges from zero to positive infinity
+//! - `0` produces a maximally crinkly shape
+//! - `+inf` prevents any concavity, returning the convex hull of the point cloud
+//! - `40` is usually a good starting point
+//!
+//! ## Features
+//!
+//! This crate has one feature, `benches`, which is only used for benchmarks.
+//! End users of this library should never enable it.
+
 #![warn(missing_docs)]
 
 use std::collections::{BinaryHeap, HashSet};
