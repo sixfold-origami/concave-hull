@@ -27,21 +27,25 @@ pub fn edges_intersect(e1: &Edge, e2: &Edge) -> bool {
     } else {
         // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line_segment
 
-        let t = ((e1.segment.a.x - e2.segment.a.x) * (e2.segment.a.y - e2.segment.b.y)
-            - (e1.segment.a.y - e2.segment.a.y) * (e2.segment.a.x - e2.segment.b.x))
-            / ((e1.segment.a.x - e1.segment.b.x) * (e2.segment.a.y - e2.segment.b.y)
-                - (e1.segment.a.y - e1.segment.b.y) * (e2.segment.a.x - e2.segment.b.x));
+        let t_num = (e1.segment.a.x - e2.segment.a.x) * (e2.segment.a.y - e2.segment.b.y)
+            - (e1.segment.a.y - e2.segment.a.y) * (e2.segment.a.x - e2.segment.b.x);
+        let t_denom = (e1.segment.a.x - e1.segment.b.x) * (e2.segment.a.y - e2.segment.b.y)
+            - (e1.segment.a.y - e1.segment.b.y) * (e2.segment.a.x - e2.segment.b.x);
 
-        let u = -1.
+        let u_num = -1.
             * ((e1.segment.a.x - e1.segment.b.x) * (e1.segment.a.y - e2.segment.a.y)
-                - (e1.segment.a.y - e1.segment.b.y) * (e1.segment.a.x - e2.segment.a.x))
-            / ((e1.segment.a.x - e1.segment.b.x) * (e2.segment.a.y - e2.segment.b.y)
-                - (e1.segment.a.y - e1.segment.b.y) * (e2.segment.a.x - e2.segment.b.x));
+                - (e1.segment.a.y - e1.segment.b.y) * (e1.segment.a.x - e2.segment.a.x));
+        let u_denom = (e1.segment.a.x - e1.segment.b.x) * (e2.segment.a.y - e2.segment.b.y)
+            - (e1.segment.a.y - e1.segment.b.y) * (e2.segment.a.x - e2.segment.b.x);
 
-        debug_assert!(!t.is_nan());
-        debug_assert!(!u.is_nan());
-
-        t >= 0. && t <= 1. && u >= 0. && u <= 1.
+        // Equivalent to: (t_num/t_denom) >= 0. && (t_num/t_denom) <= 1. && (u_num/u_denom) >= 0. && (u_num/u_denom) <= 1.
+        // But faster!
+        t_denom != 0.
+            && t_num * t_denom >= 0.
+            && t_num.abs() <= t_denom.abs()
+            && u_denom != 0.
+            && u_num * u_denom >= 0.
+            && u_num.abs() <= u_denom.abs()
     }
 }
 
@@ -113,9 +117,18 @@ mod tests {
     }
 
     #[test]
-    fn intersection_t() {
+    fn intersection_t_away() {
         let e1 = Edge::new(1, 7, &POINTS);
         let e2 = Edge::new(4, 6, &POINTS);
+
+        assert!(edges_intersect(&e1, &e2));
+        assert!(edges_intersect(&e2, &e1));
+    }
+
+    #[test]
+    fn intersection_t_towards() {
+        let e1 = Edge::new(1, 7, &POINTS);
+        let e2 = Edge::new(6, 4, &POINTS);
 
         assert!(edges_intersect(&e1, &e2));
         assert!(edges_intersect(&e2, &e1));
