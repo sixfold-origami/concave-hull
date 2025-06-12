@@ -109,6 +109,7 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
                 // TODO: BVH might be faster? Hard to say given how frequently we'd be adding new segments
                 if concave_hull
                     .iter()
+                    .chain(edge_heap.iter())
                     .all(|edge| !(edges_intersect(edge, &e1) || edges_intersect(edge, &e2)))
                 {
                     edge_heap.push(e1);
