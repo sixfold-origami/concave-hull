@@ -20,19 +20,24 @@ const POINT_COLOR: Rgb<u8> = Rgb([255u8, 255u8, 255u8]);
 const FULL_SEGMENT_COLOR: Rgb<u8> = Rgb([255u8, 0u8, 0u8]);
 const FADED_SEGMENT_COLOR: Rgb<u8> = Rgb([255u8, 200u8, 200u8]);
 
-pub fn draw_points_and_hull(mut points: Vec<Point>, mut hull: Vec<Point>) -> RgbImage {
+pub fn draw_points_and_hull(mut points: Vec<Point>, mut hull: Vec<Point>, debug: bool) -> RgbImage {
     // Note: coordinates are mirrored about the y axis before being drawn,
     // since imageproc uses the standard image coordinate space (y-down),
     // but parry (and, by extension, this crate) use the standard mathematical coordinate space (y-up).
     // This mirroring in the rendering steps keeps things consistent,
     // and ensures that the gradient for winding order actually goes in the correct direction.
-    points
-        .iter_mut()
-        .for_each(|p| *p = p.coords.component_mul(&Vector::new(1.0, -1.0)).into());
-    hull.iter_mut()
-        .for_each(|p| *p = p.coords.component_mul(&Vector::new(1.0, -1.0)).into());
+    if !debug {
+        points
+            .iter_mut()
+            .for_each(|p| *p = p.coords.component_mul(&Vector::new(1.0, -1.0)).into());
+        hull.iter_mut()
+            .for_each(|p| *p = p.coords.component_mul(&Vector::new(1.0, -1.0)).into());
+    }
 
-    let aabb = local_point_cloud_aabb(&points).loosened(IMG_PADDING);
+    let mut aabb = local_point_cloud_aabb(&points).loosened(IMG_PADDING);
+    if debug {
+        aabb.mins = Point::origin();
+    }
     let point_size = (aabb.extents().max() / 250.).max(2.) as i32;
 
     let mut image = RgbImage::new(aabb.extents().x as u32, aabb.extents().y as u32);

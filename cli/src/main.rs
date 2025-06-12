@@ -87,7 +87,7 @@ fn main() -> anyhow::Result<()> {
             img_output.display()
         );
 
-        let image = draw_points_and_hull(in_points, hull.iter().map(|(_, p)| *p).collect());
+        let image = draw_points_and_hull(in_points, hull.iter().map(|(_, p)| *p).collect(), false);
         image.save(img_output)?;
     }
 
