@@ -26,6 +26,7 @@ End users of this library should never enable it.
 ## The CLI Crate
 
 In the `cli` folder is a small CLI that exposes the library's functionality.
+I originally wrote it for testing, but it might be useful for one-off usages of the library.
 
 Basic usage:
 ```

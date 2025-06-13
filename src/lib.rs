@@ -77,7 +77,8 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
     let mut concave_hull: Vec<Edge> = Vec::with_capacity(convex.len());
 
     'edges: while let Some(edge) = edge_heap.pop() {
-        // TODO: scale this check based on local density
+        // TODO: scale this check based on local density?
+        // It's in the original paper, but *not* in the JS impl...
         if edge.norm_squared() > concavity {
             // This edge is long enough that we should try to split it
 
