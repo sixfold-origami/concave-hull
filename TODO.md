@@ -5,5 +5,4 @@
 - Tests
 - Compare to `geo`'s impl
 - Use a non-zero f32 for the concavity parameter?
-- Make the two point degenerate case not panic, and add a test for it
 - Check what happens if you have duplicate points

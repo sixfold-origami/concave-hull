@@ -57,11 +57,22 @@ pub use parry2d;
 /// - The index of the hull point in the original slice
 /// - The value of the point in the original slice
 ///
-/// The points are returned in counter-clockwise order
+/// The points are returned in counter-clockwise order.
 pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
-    // TODO: Add special cases and tests for point clouds with fewer than three points
+    if points.len() <= 1 {
+        // Degenerate case with too few points to make a convex hull
+        // Just return the original point (or nothing)
+        return points.iter().enumerate().map(|(id, p)| (id, *p)).collect();
+    }
+
     // Get the convex hull from parry
     let convex = convex_hull_idx(points);
+
+    if points.len() <= 3 {
+        // Degenerate case with enough points for a convex hull, but too few points to make a concave hull
+        // Just return the convex hull
+        return convex.into_iter().map(|id| (id, points[id])).collect();
+    }
 
     // Heap up the convex edges by length
     let mut edge_heap = BinaryHeap::with_capacity(convex.len());
@@ -150,4 +161,62 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
     sorted_hull.push((curr.i, curr.segment.a));
 
     sorted_hull
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// An array of points in a numpad grid, in numpad order
+    ///
+    /// 7 8 9
+    /// 4 5 6
+    /// 1 2 3
+    /// 0
+    const POINTS: [Point; 10] = [
+        Point::new(0., 0.),
+        Point::new(0., 1.),
+        Point::new(1., 1.),
+        Point::new(2., 1.),
+        Point::new(0., 2.),
+        Point::new(1., 2.),
+        Point::new(2., 2.),
+        Point::new(0., 3.),
+        Point::new(1., 3.),
+        Point::new(2., 3.),
+    ];
+
+    #[test]
+    fn zero_points() {
+        let hull = concave_hull(&POINTS[0..0], 10.);
+        assert_eq!(hull, Vec::new());
+    }
+
+    #[test]
+    fn one_point() {
+        let hull = concave_hull(&POINTS[0..1], 10.);
+        assert_eq!(hull, Vec::from([(0, Point::origin())]));
+    }
+
+    #[test]
+    fn two_points() {
+        let hull = concave_hull(&POINTS[0..2], 10.);
+        assert_eq!(
+            hull,
+            Vec::from([(0, Point::origin()), (1, Point::new(0., 1.))])
+        );
+    }
+
+    #[test]
+    fn three_points() {
+        let hull = concave_hull(&POINTS[0..3], 10.);
+        assert_eq!(
+            hull,
+            Vec::from([
+                (0, Point::origin()),
+                (2, Point::new(1., 1.)),
+                (1, Point::new(0., 1.)),
+            ])
+        );
+    }
 }
