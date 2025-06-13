@@ -51,17 +51,30 @@ This means that the minimum point values are in the bottom left corner, and the 
 ## Comparison to `geo`
 
 The [geo](https://crates.io/crates/geo) crate also includes a concave hull implementation written in Rust.
-However, the geo implementation seems to have a bug affecting certain datasets:
+However, the geo implementation seems to have some bugs affecting certain datasets:
 
 ![Image: Two concave hulls on the question mark dataset. The left hull has a large section that is not bent in, while the right one has more uniform concavity](fig_2.png)
 
 *`geo`'s concave hull (left) vs our concave hull (right), with similar concavity parameters[^parameters]*
 
 As you can see, the long edge on the left side does not get bent in, even though the rest of the shape is quite crinkly.
-Avoiding this issue is the main advantage to using our implmentation over `geo`. 
+Additionally, `geo` sometimes generates degenerate polygons, which intersect themselves:
 
+![Image: Two point clouds with relatively uniform distribution, each with a concave hull. The left hull crosses itself, while the right hull does not](fig_3.png)
+
+*`geo`'s concave hull (left) vs our concave hull (right), with similar concavity parameters[^parameters_2]*
+
+Avoiding these issues is the main advantage to using our implmentation over `geo`. 
 The second advantage is that this implementation is based on the [Dimforge](https://dimforge.com/) ecosystem.
 So, if you are already using Dimforge in your projects, then using this crate adds zero conversion overhead.
+
+### A Note on Performance
+
+The inaccuracies in `geo`'s results make it hard to compare performance in a fair way.
+That being said, `geo`s implemention is definitely much faster on large datasets.
+- On the `concaveman_1k` dataset (a dataset that [concaveman](https://github.com/mapbox/concaveman) uses for testing, with 1000 points), `geo` is roughly 10 times faster.
+- On smaller datasets, like the question mark, it's only about 2 times faster.
+- On very small datasets (< 20 points), it's about 2 times *slower*.
  
 ## Testing
 
@@ -69,3 +82,4 @@ Various point clouds can be found in `test_data`, with different shapes, sizes, 
 These are used for unit tests and benchmarks.
 
 [^parameters]: The exact parameters used here were `0.1` for `geo` and `35` for our hull. The exact magnitudes are quite different, because `geo`'s algorithm is based on [concaveman](https://github.com/mapbox/concaveman), whereas ours is based on [gift opening](https://deeplearning.lipingyang.org/wp-content/uploads/2019/07/Project-10-report_Implementation-of-a-fast-and-efficient-concave-hull-algorithm.pdf). But, they are roughly equivalent.
+[^parameters_2]: The exact parameters used here were `0.05` for `geo` and `35` for our hull.
