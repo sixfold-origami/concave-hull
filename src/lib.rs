@@ -104,7 +104,10 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
             let best = best.expect("Point cloud should have at least one point");
 
             // Check boundary to avoid creating a degenerate polygon
-            // TODO: add an option to check that the angle is less than pi/2
+            // Note: The original paper recommends adding a check to make sure the angle is less than 90 degrees.
+            //       I did a ton of testing and I could not find a single case where this made a difference
+            //       in the final hull, even though the check was hit multiple times.
+            //       So, I ommitted it for performance.
             if !boundary_points.contains(&best.0) {
                 let (e1, e2) = edge.split_by(*best.1, best.0);
 
