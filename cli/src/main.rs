@@ -4,6 +4,7 @@ use anyhow::Ok;
 use clap::Parser;
 use concave_hull::{Point, concave_hull};
 use csv::{ReaderBuilder, Writer};
+use geo::{ConcaveHull, MultiPoint};
 
 use crate::drawing::draw_points_and_hull;
 
@@ -57,12 +58,13 @@ fn main() -> anyhow::Result<()> {
             let x = r[0].parse()?;
             let y = r[1].parse()?;
 
-            Ok(Point::new(x, y))
+            Ok((x, y))
         })
         .collect::<Result<Vec<_>, _>>()?;
 
     // Generate hull
-    let hull = concave_hull(&in_points, args.concavity);
+    // let hull = concave_hull(&in_points, args.concavity);
+    let hull = MultiPoint::from(in_points.clone()).concave_hull(args.concavity);
 
     // Output
     if point_output.is_none() && img_output.is_none() {
@@ -76,8 +78,8 @@ fn main() -> anyhow::Result<()> {
         );
 
         let mut writer = Writer::from_path(point_output)?;
-        for point in hull.iter() {
-            writer.write_record(&[point.1.x.to_string(), point.1.y.to_string()])?
+        for point in hull.exterior().coords() {
+            writer.write_record(&[point.x.to_string(), point.y.to_string()])?
         }
     }
 
@@ -87,7 +89,17 @@ fn main() -> anyhow::Result<()> {
             img_output.display()
         );
 
-        let image = draw_points_and_hull(in_points, hull.iter().map(|(_, p)| *p).collect(), false);
+        let image = draw_points_and_hull(
+            in_points
+                .into_iter()
+                .map(|p| Point::new(p.0, p.1))
+                .collect(),
+            hull.exterior()
+                .coords()
+                .map(|p| Point::new(p.x, p.y))
+                .collect(),
+            false,
+        );
         image.save(img_output)?;
     }
 

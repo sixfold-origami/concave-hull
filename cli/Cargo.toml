@@ -8,4 +8,5 @@ anyhow = "1.0.98"
 clap = { version = "4.5.39", features = ["derive"] }
 concave_hull = { path = ".." }
 csv = "1.3.1"
+geo = "0.30.0"
 imageproc = "0.25.0"
