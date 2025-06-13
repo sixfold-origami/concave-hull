@@ -167,56 +167,269 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
 mod tests {
     use super::*;
 
-    /// An array of points in a numpad grid, in numpad order
-    ///
-    /// 7 8 9
-    /// 4 5 6
-    /// 1 2 3
-    /// 0
-    const POINTS: [Point; 10] = [
-        Point::new(0., 0.),
-        Point::new(0., 1.),
-        Point::new(1., 1.),
-        Point::new(2., 1.),
-        Point::new(0., 2.),
-        Point::new(1., 2.),
-        Point::new(2., 2.),
-        Point::new(0., 3.),
-        Point::new(1., 3.),
-        Point::new(2., 3.),
-    ];
+    mod small_clouds {
+        use super::*;
 
-    #[test]
-    fn zero_points() {
-        let hull = concave_hull(&POINTS[0..0], 10.);
-        assert_eq!(hull, Vec::new());
+        /// An array of points in a numpad grid, in numpad order
+        ///
+        /// 7 8 9
+        /// 4 5 6
+        /// 1 2 3
+        /// 0
+        const POINTS: [Point; 10] = [
+            Point::new(0., 0.),
+            Point::new(0., 1.),
+            Point::new(1., 1.),
+            Point::new(2., 1.),
+            Point::new(0., 2.),
+            Point::new(1., 2.),
+            Point::new(2., 2.),
+            Point::new(0., 3.),
+            Point::new(1., 3.),
+            Point::new(2., 3.),
+        ];
+
+        #[test]
+        fn zero_points() {
+            let hull = concave_hull(&POINTS[0..0], 10.);
+            assert_eq!(hull, Vec::new());
+        }
+
+        #[test]
+        fn one_point() {
+            let hull = concave_hull(&POINTS[0..1], 10.);
+            assert_eq!(hull, Vec::from([(0, POINTS[0])]));
+        }
+
+        #[test]
+        fn two_points() {
+            let hull = concave_hull(&POINTS[0..2], 10.);
+            assert_eq!(hull, Vec::from([(0, POINTS[0]), (1, POINTS[1])]));
+        }
+
+        #[test]
+        fn three_points() {
+            let hull = concave_hull(&POINTS[0..3], 10.);
+            assert_eq!(
+                hull,
+                Vec::from([(0, POINTS[0]), (2, POINTS[2]), (1, POINTS[1]),])
+            );
+        }
+
+        #[test]
+        fn square() {
+            let hull = concave_hull(&[POINTS[1], POINTS[2], POINTS[4], POINTS[5]], 10.);
+            assert_eq!(
+                hull,
+                Vec::from([
+                    (2, POINTS[4]),
+                    (0, POINTS[1]),
+                    (1, POINTS[2]),
+                    (3, POINTS[5]),
+                ])
+            );
+        }
     }
 
-    #[test]
-    fn one_point() {
-        let hull = concave_hull(&POINTS[0..1], 10.);
-        assert_eq!(hull, Vec::from([(0, Point::origin())]));
-    }
+    mod question_mark {
+        use std::fs::File;
 
-    #[test]
-    fn two_points() {
-        let hull = concave_hull(&POINTS[0..2], 10.);
-        assert_eq!(
-            hull,
-            Vec::from([(0, Point::origin()), (1, Point::new(0., 1.))])
-        );
-    }
+        use csv::ReaderBuilder;
 
-    #[test]
-    fn three_points() {
-        let hull = concave_hull(&POINTS[0..3], 10.);
-        assert_eq!(
-            hull,
-            Vec::from([
-                (0, Point::origin()),
-                (2, Point::new(1., 1.)),
-                (1, Point::new(0., 1.)),
-            ])
-        );
+        use super::*;
+
+        fn load_question_mark() -> Vec<Point> {
+            let f = File::open("./test_data/question_mark.csv").unwrap();
+
+            let mut reader = ReaderBuilder::new().has_headers(false).from_reader(f);
+
+            reader
+                .records()
+                .map(|r| {
+                    let r = r.unwrap();
+                    let x = r[0].parse().unwrap();
+                    let y = r[1].parse().unwrap();
+
+                    Point::new(x, y)
+                })
+                .collect()
+        }
+
+        #[test]
+        fn reasonable_concave() {
+            let points = load_question_mark();
+            let hull = concave_hull(&points, 40.);
+
+            let expected = Vec::from([
+                (16, Point::new(187.0, 87.0)),
+                (17, Point::new(173.0, 97.0)),
+                (24, Point::new(177.0, 180.0)),
+                (1, Point::new(182.0, 201.0)),
+                (20, Point::new(179.0, 225.0)),
+                (27, Point::new(182.0, 245.0)),
+                (31, Point::new(187.0, 270.0)),
+                (32, Point::new(204.0, 306.0)),
+                (81, Point::new(221.0, 332.0)),
+                (42, Point::new(248.0, 361.0)),
+                (41, Point::new(243.0, 388.0)),
+                (79, Point::new(247.0, 406.0)),
+                (47, Point::new(240.0, 425.0)),
+                (49, Point::new(228.0, 447.0)),
+                (50, Point::new(211.0, 466.0)),
+                (59, Point::new(192.0, 473.0)),
+                (60, Point::new(156.0, 481.0)),
+                (62, Point::new(128.0, 483.0)),
+                (71, Point::new(100.0, 474.0)),
+                (70, Point::new(80.0, 456.0)),
+                (72, Point::new(60.0, 461.0)),
+                (74, Point::new(34.0, 446.0)),
+                (75, Point::new(32.0, 410.0)),
+                (76, Point::new(53.0, 396.0)),
+                (67, Point::new(78.0, 400.0)),
+                (66, Point::new(100.0, 408.0)),
+                (55, Point::new(134.0, 420.0)),
+                (54, Point::new(165.0, 415.0)),
+                (43, Point::new(177.0, 378.0)),
+                (38, Point::new(179.0, 347.0)),
+                (35, Point::new(158.0, 333.0)),
+                (34, Point::new(145.0, 299.0)),
+                (28, Point::new(141.0, 274.0)),
+                (22, Point::new(134.0, 230.0)),
+                (2, Point::new(141.0, 208.0)),
+                (23, Point::new(143.0, 185.0)),
+                (0, Point::new(162.0, 168.0)),
+                (5, Point::new(160.0, 100.0)),
+                (4, Point::new(141.0, 92.0)),
+                (9, Point::new(134.0, 70.0)),
+                (10, Point::new(126.0, 53.0)),
+                (11, Point::new(139.0, 34.0)),
+                (12, Point::new(160.0, 29.0)),
+                (14, Point::new(182.0, 34.0)),
+                (15, Point::new(192.0, 58.0)),
+            ]);
+
+            assert_eq!(hull, expected);
+        }
+
+        #[test]
+        fn maximally_concave() {
+            let points = load_question_mark();
+            let hull = concave_hull(&points, 0.);
+
+            let expected = Vec::from([
+                (21, Point::new(163.0, 208.0)),
+                (26, Point::new(162.0, 219.0)),
+                (20, Point::new(179.0, 225.0)),
+                (3, Point::new(158.0, 236.0)),
+                (27, Point::new(182.0, 245.0)),
+                (31, Point::new(187.0, 270.0)),
+                (29, Point::new(156.0, 265.0)),
+                (30, Point::new(173.0, 293.0)),
+                (80, Point::new(187.0, 320.0)),
+                (32, Point::new(204.0, 306.0)),
+                (36, Point::new(190.0, 335.0)),
+                (37, Point::new(206.0, 355.0)),
+                (81, Point::new(221.0, 332.0)),
+                (40, Point::new(221.0, 362.0)),
+                (42, Point::new(248.0, 361.0)),
+                (41, Point::new(243.0, 388.0)),
+                (79, Point::new(247.0, 406.0)),
+                (47, Point::new(240.0, 425.0)),
+                (46, Point::new(219.0, 410.0)),
+                (45, Point::new(196.0, 418.0)),
+                (49, Point::new(228.0, 447.0)),
+                (48, Point::new(218.0, 439.0)),
+                (51, Point::new(197.0, 449.0)),
+                (50, Point::new(211.0, 466.0)),
+                (59, Point::new(192.0, 473.0)),
+                (58, Point::new(173.0, 466.0)),
+                (60, Point::new(156.0, 481.0)),
+                (57, Point::new(153.0, 456.0)),
+                (63, Point::new(138.0, 464.0)),
+                (62, Point::new(128.0, 483.0)),
+                (61, Point::new(119.0, 468.0)),
+                (71, Point::new(100.0, 474.0)),
+                (64, Point::new(100.0, 442.0)),
+                (70, Point::new(80.0, 456.0)),
+                (72, Point::new(60.0, 461.0)),
+                (69, Point::new(61.0, 437.0)),
+                (74, Point::new(34.0, 446.0)),
+                (73, Point::new(43.0, 429.0)),
+                (75, Point::new(32.0, 410.0)),
+                (77, Point::new(60.0, 418.0)),
+                (76, Point::new(53.0, 396.0)),
+                (78, Point::new(66.0, 401.0)),
+                (67, Point::new(78.0, 400.0)),
+                (68, Point::new(83.0, 422.0)),
+                (66, Point::new(100.0, 408.0)),
+                (65, Point::new(112.0, 427.0)),
+                (56, Point::new(124.0, 442.0)),
+                (55, Point::new(134.0, 420.0)),
+                (53, Point::new(155.0, 430.0)),
+                (52, Point::new(179.0, 435.0)),
+                (54, Point::new(165.0, 415.0)),
+                (44, Point::new(179.0, 401.0)),
+                (39, Point::new(204.0, 386.0)),
+                (43, Point::new(177.0, 378.0)),
+                (38, Point::new(179.0, 347.0)),
+                (35, Point::new(158.0, 333.0)),
+                (33, Point::new(165.0, 311.0)),
+                (34, Point::new(145.0, 299.0)),
+                (28, Point::new(141.0, 274.0)),
+                (22, Point::new(134.0, 230.0)),
+                (2, Point::new(141.0, 208.0)),
+                (23, Point::new(143.0, 185.0)),
+                (25, Point::new(163.0, 189.0)),
+                (0, Point::new(162.0, 168.0)),
+                (5, Point::new(160.0, 100.0)),
+                (4, Point::new(141.0, 92.0)),
+                (19, Point::new(153.0, 87.0)),
+                (8, Point::new(155.0, 75.0)),
+                (9, Point::new(134.0, 70.0)),
+                (10, Point::new(126.0, 53.0)),
+                (7, Point::new(151.0, 58.0)),
+                (11, Point::new(139.0, 34.0)),
+                (12, Point::new(160.0, 29.0)),
+                (14, Point::new(182.0, 34.0)),
+                (13, Point::new(167.0, 53.0)),
+                (15, Point::new(192.0, 58.0)),
+                (6, Point::new(177.0, 70.0)),
+                (16, Point::new(187.0, 87.0)),
+                (18, Point::new(168.0, 75.0)),
+                (17, Point::new(173.0, 97.0)),
+                (24, Point::new(177.0, 180.0)),
+                (1, Point::new(182.0, 201.0)),
+            ]);
+
+            assert_eq!(hull, expected);
+        }
+
+        #[test]
+        fn minimally_concave() {
+            let points = load_question_mark();
+            let hull = concave_hull(&points, f32::INFINITY);
+
+            let expected = Vec::from([
+                (50, Point::new(211.0, 466.0)),
+                (59, Point::new(192.0, 473.0)),
+                (60, Point::new(156.0, 481.0)),
+                (62, Point::new(128.0, 483.0)),
+                (71, Point::new(100.0, 474.0)),
+                (72, Point::new(60.0, 461.0)),
+                (74, Point::new(34.0, 446.0)),
+                (75, Point::new(32.0, 410.0)),
+                (10, Point::new(126.0, 53.0)),
+                (11, Point::new(139.0, 34.0)),
+                (12, Point::new(160.0, 29.0)),
+                (14, Point::new(182.0, 34.0)),
+                (15, Point::new(192.0, 58.0)),
+                (42, Point::new(248.0, 361.0)),
+                (79, Point::new(247.0, 406.0)),
+                (47, Point::new(240.0, 425.0)),
+                (49, Point::new(228.0, 447.0)),
+            ]);
+
+            assert_eq!(hull, expected);
+        }
     }
 }
