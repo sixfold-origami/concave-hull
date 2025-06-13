@@ -11,6 +11,7 @@ See the docs for that function for details on usage, or check the example at `ex
 
 Concave hulls are a somewhat subjective thing.
 While it's possible to generate a concave hull which minimizes the area of the final polygon, this is often undesirable, as it leads to very crinkly shapes.
+To remedy this, a concavity parameter is exposed, which controls how tight the final concave hull is around the point cloud.
 In general, you should pick a concavity parameter which produces "desirable" results on your datasets, whatever that means for your application.
 Here is some guidance:
 - The concavity parameter ranges from zero to positive infinity

@@ -9,6 +9,7 @@
 //!
 //! Concave hulls are a somewhat subjective thing.
 //! While it's possible to generate a concave hull which minimizes the area of the final polygon, this is often undesirable, as it leads to very crinkly shapes.
+//! To remedy this, a concavity parameter is exposed, which controls how tight the final concave hull is around the point cloud.
 //! In general, you should pick a concavity parameter which produces "desirable" results on your datasets, whatever that means for your application.
 //! Here is some guidance:
 //! - The concavity parameter ranges from zero to positive infinity
@@ -47,10 +48,10 @@ pub use parry2d;
 
 /// Computes the concave hull of the provided point cloud, using the provided concavity parameter
 ///
-/// Makes the following assumption about the point cloud:
-/// - No points are repeated
-/// - There are at least 3 points present (TODO: Add special cases for this instead)
-///
+/// Inputs:
+/// - `points`: A list of points, making up the point cloud to generate the concave hull for.
+/// It is assumed that this list contains no repeat points.
+/// - `concavity`: A parameter determining how concave the hull should be.
 /// See the crate-level docs for guidance on picking the concavity parameter.
 /// The returned [`Vec`] contains a tuple of:
 /// - The index of the hull point in the original slice
@@ -58,6 +59,7 @@ pub use parry2d;
 ///
 /// The points are returned in counter-clockwise order
 pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
+    // TODO: Add special cases and tests for point clouds with fewer than three points
     // Get the convex hull from parry
     let convex = convex_hull_idx(points);
 
