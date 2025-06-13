@@ -19,6 +19,9 @@ Here is some guidance:
 - `+inf` prevents any concavity, returning the convex hull of the point cloud
 - `40` is usually a good starting point
 
+Note that the concavity parameter **is not scale invariant**.
+This means that a point cloud which covers an area from 0 to 100 will need a smaller concavity parameter than an equivalent point cloud that covers an area from 0 to 1000.
+
 ## Features
 
 This crate has one feature, `benches`, which is only used for benchmarks.

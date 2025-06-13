@@ -17,6 +17,9 @@
 //! - `+inf` prevents any concavity, returning the convex hull of the point cloud
 //! - `40` is usually a good starting point
 //!
+//! Note that the concavity parameter **is not scale invariant**.
+//! This means that a point cloud which covers an area from 0 to 100 will need a smaller concavity parameter than an equivalent point cloud that covers an area from 0 to 1000.
+//!
 //! ## Features
 //!
 //! This crate has one feature, `benches`, which is only used for benchmarks.
@@ -52,6 +55,7 @@ pub use parry2d;
 /// - `points`: A list of points, making up the point cloud to generate the concave hull for.
 /// It is assumed that this list contains no repeat points.
 /// - `concavity`: A parameter determining how concave the hull should be.
+///
 /// See the crate-level docs for guidance on picking the concavity parameter.
 /// The returned [`Vec`] contains a tuple of:
 /// - The index of the hull point in the original slice
