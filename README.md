@@ -71,7 +71,7 @@ So, if you are already using Dimforge in your projects, then using this crate ad
 ### A Note on Performance
 
 The inaccuracies in `geo`'s results make it hard to compare performance in a fair way.
-That being said, `geo`s implemention is definitely much faster on large datasets.
+That being said, `geo`'s implemention is definitely much faster on large datasets.
 - On the `concaveman_1k` dataset (a dataset that [concaveman](https://github.com/mapbox/concaveman) uses for testing, with 1000 points), `geo` is roughly 10 times faster.
 - On smaller datasets, like the question mark, it's only about 2 times faster.
 - On very small datasets (< 20 points), it's about 2 times *slower*.
