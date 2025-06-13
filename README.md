@@ -58,7 +58,8 @@ However, the geo implementation seems to have a bug affecting certain datasets:
 *`geo`'s concave hull (left) vs our concave hull (right), with similar concavity parameters[^parameters]*
 
 As you can see, the long edge on the left side does not get bent in, even though the rest of the shape is quite crinkly.
-This is the main advantage to using our implmentation over `geo`. 
+Avoiding this issue is the main advantage to using our implmentation over `geo`. 
+
 The second advantage is that this implementation is based on the [Dimforge](https://dimforge.com/) ecosystem.
 So, if you are already using Dimforge in your projects, then using this crate adds zero conversion overhead.
  
