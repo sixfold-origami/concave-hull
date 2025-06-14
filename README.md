@@ -24,7 +24,14 @@ This means that a point cloud which covers an area from 0 to 100 will need a sma
 
 ## Features
 
-This crate has one feature, `benches`, which is only used for benchmarks.
+This crate has two features for precision:
+- `f32` (default feature): Enables `f32`-precision versions of the concave hull computation, and relevant re-exports (an `f32`-precision point, for example)
+- `f64`: Enables `f32`-precision versions of the concave hull computation, and relevant re-exports (an `f32`-precision point, for example)
+
+If neither feature is enabled, then this crate has no public exports.
+Enabling both simultaneously is supported (cargo features must be purely additive), with relevant functions being exported under the `f32` or `f64` submodules, respectively.
+
+This crate has one additional feature, `benches`, which is only used for benchmarks.
 End users of this library should never enable it.
 
 ## The CLI Crate
