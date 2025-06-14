@@ -8,7 +8,7 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 edition = "2024"
 keywords = ["concave", "hull", "geometry"]
-exclude = ["test-data", "cli"]
+exclude = ["test-data/*", "cli/*"]
 
 [workspace]
 resolver = "2"
