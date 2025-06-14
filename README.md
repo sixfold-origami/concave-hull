@@ -2,7 +2,7 @@
 
 `concave-hull` is an implementation of the [gift opening concave hull algorithm](https://deeplearning.lipingyang.org/wp-content/uploads/2019/07/Project-10-report_Implementation-of-a-fast-and-efficient-concave-hull-algorithm.pdf), written in Rust.
 
-![Image: A point cloud roughly in the shape of a question mark, with a concave hull wrapping it fairly closely](./fig_1.png)
+![Image: A point cloud roughly in the shape of a question mark, with a concave hull wrapping it fairly closely](fig_1.png)
 
 The top level export is a function called `concave_hull`.
 See the docs for that function for details on usage, or check the example at `examples/basic.rs`
@@ -60,14 +60,14 @@ This means that the minimum point values are in the bottom left corner, and the 
 The [geo](https://crates.io/crates/geo) crate also includes a concave hull implementation written in Rust.
 However, the geo implementation seems to have some bugs affecting certain datasets:
 
-![Image: Two concave hulls on the question mark dataset. The left hull has a large section that is not bent in, while the right one has more uniform concavity](./fig_2.png)
+![Image: Two concave hulls on the question mark dataset. The left hull has a large section that is not bent in, while the right one has more uniform concavity](fig_2.png)
 
 *`geo`'s concave hull (left) vs our concave hull (right), with similar concavity parameters[^parameters]*
 
 As you can see, the long edge on the left side does not get bent in, even though the rest of the shape is quite crinkly.
 Additionally, `geo` sometimes generates degenerate polygons, which intersect themselves:
 
-![Image: Two point clouds with relatively uniform distribution, each with a concave hull. The left hull crosses itself, while the right hull does not](./fig_3.png)
+![Image: Two point clouds with relatively uniform distribution, each with a concave hull. The left hull crosses itself, while the right hull does not](fig_3.png)
 
 *`geo`'s concave hull (left) vs our concave hull (right), with similar concavity parameters[^parameters_2]*
 

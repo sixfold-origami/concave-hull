@@ -1,9 +1,9 @@
 [package]
 name = "concave_hull"
 description = "A Rust implementation of the Gift Opening concave hull algorithm"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Rose Peck"]
-repository = "https://github.com/sixfold-origami/concave_hull"
+repository = "https://github.com/sixfold-origami/concave-hull"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 edition = "2024"
