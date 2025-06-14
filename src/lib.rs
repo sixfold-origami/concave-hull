@@ -28,151 +28,68 @@
 #![warn(missing_docs)]
 #![feature(trait_alias)]
 
-use std::collections::{BinaryHeap, HashSet};
-
 use nalgebra::{RealField, Scalar};
 use num_traits::float::TotalOrder;
-use parry2d::{math::Point, transformation::convex_hull_idx};
 
-#[cfg(feature = "benches")]
-pub use edge::Edge;
-#[cfg(not(feature = "benches"))]
-use edge::Edge;
-#[cfg(feature = "benches")]
-pub use segment_intersect::edges_intersect;
-#[cfg(not(feature = "benches"))]
-use segment_intersect::edges_intersect;
-
+mod concave;
 mod edge;
 mod segment_intersect;
 
-/// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
-///
-/// This is also the point type used in function signatures and returns
-pub use parry2d;
+#[cfg(feature = "benches")]
+pub use edge::Edge;
+#[cfg(feature = "benches")]
+pub use segment_intersect::edges_intersect;
 
 /// Trait bound for scalars we can work with
 ///
 /// In practice, I think this is just the float types
+#[cfg(not(feature = "benches"))]
 pub(crate) trait HullScalar = Scalar + RealField + Copy + TotalOrder;
 
-/// Computes the concave hull of the provided point cloud, using the provided concavity parameter
+/// Trait bound for scalars we can work with
 ///
-/// Inputs:
-/// - `points`: A list of points, making up the point cloud to generate the concave hull for.
-/// It is assumed that this list contains no repeat points.
-/// - `concavity`: A parameter determining how concave the hull should be.
-///
-/// See the crate-level docs for guidance on picking the concavity parameter.
-/// The returned [`Vec`] contains a tuple of:
-/// - The index of the hull point in the original slice
-/// - The value of the point in the original slice
-///
-/// The points are returned in counter-clockwise order.
-pub fn concave_hull<T: HullScalar>(points: &[Point<T>], concavity: T) -> Vec<(usize, Point<T>)> {
-    if points.len() <= 1 {
-        // Degenerate case with too few points to make a convex hull
-        // Just return the original point (or nothing)
-        return points.iter().enumerate().map(|(id, p)| (id, *p)).collect();
-    }
+/// In practice, I think this is just the float types
+#[cfg(feature = "benches")]
+pub trait HullScalar = Scalar + RealField + Copy + TotalOrder;
 
-    // Get the convex hull from parry
-    let convex = convex_hull_idx(points);
+mod f32 {
+    /// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
+    ///
+    /// This is also the point type used in function signatures and returns
+    pub type Point = parry2d::math::Point<f32>;
+    pub use parry2d;
 
-    if points.len() <= 3 {
-        // Degenerate case with enough points for a convex hull, but too few points to make a concave hull
-        // Just return the convex hull
-        return convex.into_iter().map(|id| (id, points[id])).collect();
-    }
+    use crate::concave::concave_hull_inner;
 
-    // Heap up the convex edges by length
-    let mut edge_heap = BinaryHeap::with_capacity(convex.len());
-    let mut boundary_points = HashSet::with_capacity(convex.len());
-    for id in 0..convex.len() {
-        let i = convex[id];
-        let j = convex[(id + 1) % convex.len()];
-
-        boundary_points.insert(i);
-        edge_heap.push(Edge::new(i, j, points));
-    }
-
-    // Start opening the gift
-    let concavity = concavity.powi(2); // Square the concavity limit to make the comparisons slightly faster
-    let mut concave_hull: Vec<Edge<T>> = Vec::with_capacity(convex.len());
-
-    'edges: while let Some(edge) = edge_heap.pop() {
-        // TODO: scale this check based on local density?
-        // It's in the original paper, but *not* in the JS impl...
-        if edge.norm_squared() > concavity {
-            // This edge is long enough that we should try to split it
-
-            // Find the best point to add in the middle
-            // TODO: use a BVH to make this not slow as hell
-            let mut best: Option<(usize, &Point<T>, T)> = None;
-            'points: for (i, p) in points.iter().enumerate() {
-                if i == edge.i || i == edge.j {
-                    // Do not consider points that are already on the edge
-                    continue 'points;
-                }
-                let e1 = p - edge.point_i;
-                let e2 = edge.point_j - p;
-                let e_v = edge.point_j - edge.point_i;
-
-                let angle = e_v.angle(&e1).max(e_v.angle(&e2));
-                if best.as_ref().map(|best| best.2 > angle).unwrap_or(true) {
-                    best = Some((i, p, angle));
-                }
-            }
-            let best = best.expect("Point cloud should have at least one point");
-
-            // Check boundary to avoid creating a degenerate polygon
-            // Note: The original paper recommends adding a check to make sure the angle is less than 90 degrees.
-            //       I did a ton of testing and I could not find a single case where this made a difference
-            //       in the final hull, even though the check was hit multiple times.
-            //       So, I ommitted it for performance.
-            if !boundary_points.contains(&best.0) {
-                let (e1, e2) = edge.split_by(*best.1, best.0);
-
-                // Check if the new edges would intersect any existing ones
-                // TODO: BVH might be faster? Hard to say given how frequently we'd be adding new segments
-                if concave_hull
-                    .iter()
-                    .chain(edge_heap.iter())
-                    .all(|edge| !(edges_intersect(edge, &e1) || edges_intersect(edge, &e2)))
-                {
-                    edge_heap.push(e1);
-                    edge_heap.push(e2);
-                    boundary_points.insert(best.0);
-                    continue 'edges;
-                }
-            }
+    /// Computes the concave hull of the provided point cloud, using the provided concavity parameter
+    ///
+    /// Inputs:
+    /// - `points`: A list of points, making up the point cloud to generate the concave hull for.
+    /// It is assumed that this list contains no repeat points.
+    /// - `concavity`: A parameter determining how concave the hull should be.
+    ///
+    /// See the crate-level docs for guidance on picking the concavity parameter.
+    /// The returned [`Vec`] contains a tuple of:
+    /// - The index of the hull point in the original slice
+    /// - The value of the point in the original slice
+    ///
+    /// The points are returned in counter-clockwise order.
+    pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
+        if points.len() <= 1 {
+            // Degenerate case with too few points to make a convex hull
+            // Just return the original point (or nothing)
+            return points.iter().enumerate().map(|(id, p)| (id, *p)).collect();
         }
 
-        concave_hull.push(edge);
+        // Get the convex hull from parry
+        let convex = parry2d::transformation::convex_hull_idx(points);
+
+        concave_hull_inner(points, concavity, convex)
     }
-
-    // Sort the edges in the hull end to end
-    // TODO: Can we get clever with pointer shenanigans to maintain this as we build the hull?
-    let mut sorted_hull = Vec::with_capacity(concave_hull.len());
-    let mut curr = concave_hull
-        .pop() // Start with an arbitrary edge
-        .expect("Concave hull has at least one point");
-
-    while !concave_hull.is_empty() {
-        // Walk the pointers, grabbing edges in order
-        let next = concave_hull
-            .iter()
-            .position(|edge| edge.i == curr.j)
-            .expect("Concave hull is well-formed");
-        let next = concave_hull.swap_remove(next);
-
-        sorted_hull.push((curr.i, curr.point_i));
-        curr = next;
-    }
-    sorted_hull.push((curr.i, curr.point_i));
-
-    sorted_hull
 }
+
+#[cfg(all(feature = "f32", not(feature = "f64")))]
+pub use f32::*;
 
 #[cfg(test)]
 mod tests {

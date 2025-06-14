@@ -1,6 +1,7 @@
+use parry2d::math::Point;
 use std::cmp::Ordering;
 
-use crate::{HullScalar, Point};
+use crate::HullScalar;
 
 /// Helper struct for edges in the hull
 #[derive(Debug, Clone)]
