@@ -1,6 +1,6 @@
 use std::{fs::File, time::Duration};
 
-use concave_hull::concave_hull;
+use concave_hull::f32::concave_hull;
 use criterion::{Criterion, criterion_group, criterion_main};
 use csv::ReaderBuilder;
 use parry2d::math::Point;

@@ -2,7 +2,7 @@ use std::{fs::File, path::PathBuf};
 
 use anyhow::Ok;
 use clap::Parser;
-use concave_hull::{Point, concave_hull};
+use concave_hull::f32::{Point, concave_hull};
 use csv::{ReaderBuilder, Writer};
 
 use crate::drawing::draw_points_and_hull;

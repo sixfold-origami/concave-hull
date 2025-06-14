@@ -51,7 +51,7 @@ pub fn edges_intersect<T: HullScalar>(e1: &Edge<T>, e2: &Edge<T>) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::Point;
+    use crate::f32::Point;
 
     use super::*;
 

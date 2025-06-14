@@ -52,8 +52,9 @@ pub(crate) trait HullScalar = Scalar + RealField + Copy + TotalOrder;
 #[cfg(feature = "benches")]
 pub trait HullScalar = Scalar + RealField + Copy + TotalOrder;
 
+/// Spatial points and concave hull generation for [`f32`] precision
 #[cfg(feature = "f32")]
-mod f32 {
+pub mod f32 {
     /// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
     ///
     /// This is also the point type used in function signatures and returns
@@ -89,8 +90,9 @@ mod f32 {
     }
 }
 
+/// Spatial points and concave hull generation for [`f64`] precision
 #[cfg(feature = "f64")]
-mod f64 {
+pub mod f64 {
     /// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
     ///
     /// This is also the point type used in function signatures and returns
@@ -126,15 +128,9 @@ mod f64 {
     }
 }
 
-#[cfg(all(feature = "f32", not(feature = "f64")))]
-pub use f32::*;
-
-#[cfg(all(feature = "f64", not(feature = "f32")))]
-pub use f64::*;
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::f32::*;
 
     mod small_clouds {
         use super::*;
