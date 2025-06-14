@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use concave_hull::{Edge, Point, edges_intersect};
+use concave_hull::{Edge, edges_intersect, f32::Point};
 use criterion::{Criterion, black_box, criterion_group, criterion_main};
 
 /// An array of points in a numpad grid, in numpad order

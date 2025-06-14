@@ -1,30 +1,32 @@
+use nalgebra::Point2 as Point;
 use std::cmp::Ordering;
 
-use parry2d::shape::Segment;
-
-use crate::Point;
+use crate::HullScalar;
 
 /// Helper struct for edges in the hull
 #[derive(Debug, Clone)]
-pub struct Edge {
+pub struct Edge<T: HullScalar> {
     /// Index of the first point
     pub i: usize,
     /// Index of the second point
     pub j: usize,
-    /// Segment of the edge (containing the actual values of the two points)
-    pub segment: Segment,
+
+    /// Value of the first point
+    pub point_i: Point<T>,
+    /// Value of the second point
+    pub point_j: Point<T>,
 }
 
-impl PartialEq for Edge {
+impl<T: HullScalar> PartialEq for Edge<T> {
     fn eq(&self, other: &Self) -> bool {
         // Only need to check indices
         self.i == other.i && self.j == other.j
     }
 }
 
-impl Eq for Edge {}
+impl<T: HullScalar> Eq for Edge<T> {}
 
-impl Ord for Edge {
+impl<T: HullScalar> Ord for Edge<T> {
     fn cmp(&self, other: &Self) -> Ordering {
         // Edges are always compared based on their length
         // We only care about relative length, so the squared norm is acceptable here
@@ -32,38 +34,41 @@ impl Ord for Edge {
     }
 }
 
-impl PartialOrd for Edge {
+impl<T: HullScalar> PartialOrd for Edge<T> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Edge {
+impl<T: HullScalar> Edge<T> {
     /// Constructs a new [`Self`] from a list of points and two (ordered) indices into that list
-    pub fn new(i: usize, j: usize, points: &[Point]) -> Self {
+    pub fn new(i: usize, j: usize, points: &[Point<T>]) -> Self {
         Self {
             i,
             j,
-            segment: Segment::new(points[i], points[j]),
+            point_i: points[i],
+            point_j: points[j],
         }
     }
 
     #[inline]
-    pub(crate) fn norm_squared(&self) -> f32 {
-        self.segment.scaled_direction().norm_squared()
+    pub(crate) fn norm_squared(&self) -> T {
+        (self.point_j - self.point_i).norm_squared()
     }
 
     /// Splits self in two by inserting `point` in the middle of the edge
-    pub fn split_by(&self, point: Point, idx: usize) -> (Self, Self) {
+    pub fn split_by(&self, point: Point<T>, idx: usize) -> (Self, Self) {
         let e1 = Self {
             i: self.i,
             j: idx,
-            segment: Segment::new(self.segment.a, point),
+            point_i: self.point_i,
+            point_j: point,
         };
         let e2 = Self {
             i: idx,
             j: self.j,
-            segment: Segment::new(point, self.segment.b),
+            point_i: point,
+            point_j: self.point_j,
         };
 
         (e1, e2)

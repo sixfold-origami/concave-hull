@@ -1,10 +1,10 @@
-use crate::Edge;
+use crate::{HullScalar, edge::Edge};
 
 /// Checks if the two provided edges are intersecting
 ///
 /// Assumes that distinct indices point to distinct points.
 /// i.e. if two indices are different, then the points are in different places.
-pub fn edges_intersect(e1: &Edge, e2: &Edge) -> bool {
+pub fn edges_intersect<T: HullScalar>(e1: &Edge<T>, e2: &Edge<T>) -> bool {
     // Edges are mirrors of each other
     debug_assert!(!(e1.i == e2.j && e2.i == e1.j), "Found mirrored edges");
     // Only possible if the winding gets messed up
@@ -27,31 +27,31 @@ pub fn edges_intersect(e1: &Edge, e2: &Edge) -> bool {
     } else {
         // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line_segment
 
-        let t_num = (e1.segment.a.x - e2.segment.a.x) * (e2.segment.a.y - e2.segment.b.y)
-            - (e1.segment.a.y - e2.segment.a.y) * (e2.segment.a.x - e2.segment.b.x);
-        let t_denom = (e1.segment.a.x - e1.segment.b.x) * (e2.segment.a.y - e2.segment.b.y)
-            - (e1.segment.a.y - e1.segment.b.y) * (e2.segment.a.x - e2.segment.b.x);
+        let t_num = (e1.point_i.x - e2.point_i.x) * (e2.point_i.y - e2.point_j.y)
+            - (e1.point_i.y - e2.point_i.y) * (e2.point_i.x - e2.point_j.x);
+        let t_denom = (e1.point_i.x - e1.point_j.x) * (e2.point_i.y - e2.point_j.y)
+            - (e1.point_i.y - e1.point_j.y) * (e2.point_i.x - e2.point_j.x);
 
-        let u_num = -1.
-            * ((e1.segment.a.x - e1.segment.b.x) * (e1.segment.a.y - e2.segment.a.y)
-                - (e1.segment.a.y - e1.segment.b.y) * (e1.segment.a.x - e2.segment.a.x));
-        let u_denom = (e1.segment.a.x - e1.segment.b.x) * (e2.segment.a.y - e2.segment.b.y)
-            - (e1.segment.a.y - e1.segment.b.y) * (e2.segment.a.x - e2.segment.b.x);
+        let u_num = ((e1.point_i.x - e1.point_j.x) * (e1.point_i.y - e2.point_i.y)
+            - (e1.point_i.y - e1.point_j.y) * (e1.point_i.x - e2.point_i.x))
+            .neg();
+        let u_denom = (e1.point_i.x - e1.point_j.x) * (e2.point_i.y - e2.point_j.y)
+            - (e1.point_i.y - e1.point_j.y) * (e2.point_i.x - e2.point_j.x);
 
         // Equivalent to: (t_num/t_denom) >= 0. && (t_num/t_denom) <= 1. && (u_num/u_denom) >= 0. && (u_num/u_denom) <= 1.
         // But faster!
-        t_denom != 0.
-            && t_num * t_denom >= 0.
+        t_denom != T::zero()
+            && t_num * t_denom >= T::zero()
             && t_num.abs() <= t_denom.abs()
-            && u_denom != 0.
-            && u_num * u_denom >= 0.
+            && u_denom != T::zero()
+            && u_num * u_denom >= T::zero()
             && u_num.abs() <= u_denom.abs()
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::Point;
+    use crate::f32::Point;
 
     use super::*;
 

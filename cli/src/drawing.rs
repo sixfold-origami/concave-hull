@@ -1,4 +1,4 @@
-use concave_hull::{
+use concave_hull::f32::{
     Point,
     parry2d::{
         bounding_volume::{BoundingVolume, details::local_point_cloud_aabb},
