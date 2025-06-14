@@ -26,10 +26,13 @@
 //! End users of this library should never enable it.
 
 #![warn(missing_docs)]
+#![feature(trait_alias)]
 
 use std::collections::{BinaryHeap, HashSet};
 
-use parry2d::{math::Point as ParryPoint, transformation::convex_hull_idx};
+use nalgebra::{RealField, Scalar};
+use num_traits::float::TotalOrder;
+use parry2d::{math::Point, transformation::convex_hull_idx};
 
 #[cfg(feature = "benches")]
 pub use edge::Edge;
@@ -46,8 +49,12 @@ mod segment_intersect;
 /// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
 ///
 /// This is also the point type used in function signatures and returns
-pub type Point = ParryPoint<f32>;
 pub use parry2d;
+
+/// Trait bound for scalars we can work with
+///
+/// In practice, I think this is just the float types
+pub(crate) trait HullScalar = Scalar + RealField + Copy + TotalOrder;
 
 /// Computes the concave hull of the provided point cloud, using the provided concavity parameter
 ///
@@ -62,7 +69,7 @@ pub use parry2d;
 /// - The value of the point in the original slice
 ///
 /// The points are returned in counter-clockwise order.
-pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
+pub fn concave_hull<T: HullScalar>(points: &[Point<T>], concavity: T) -> Vec<(usize, Point<T>)> {
     if points.len() <= 1 {
         // Degenerate case with too few points to make a convex hull
         // Just return the original point (or nothing)
@@ -91,7 +98,7 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
 
     // Start opening the gift
     let concavity = concavity.powi(2); // Square the concavity limit to make the comparisons slightly faster
-    let mut concave_hull: Vec<Edge> = Vec::with_capacity(convex.len());
+    let mut concave_hull: Vec<Edge<T>> = Vec::with_capacity(convex.len());
 
     'edges: while let Some(edge) = edge_heap.pop() {
         // TODO: scale this check based on local density?
@@ -101,15 +108,15 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
 
             // Find the best point to add in the middle
             // TODO: use a BVH to make this not slow as hell
-            let mut best: Option<(usize, &Point, f32)> = None;
+            let mut best: Option<(usize, &Point<T>, T)> = None;
             'points: for (i, p) in points.iter().enumerate() {
                 if i == edge.i || i == edge.j {
                     // Do not consider points that are already on the edge
                     continue 'points;
                 }
-                let e1 = p - edge.segment.a;
-                let e2 = edge.segment.b - p;
-                let e_v = edge.segment.scaled_direction();
+                let e1 = p - edge.point_i;
+                let e2 = edge.point_j - p;
+                let e_v = edge.point_j - edge.point_i;
 
                 let angle = e_v.angle(&e1).max(e_v.angle(&e2));
                 if best.as_ref().map(|best| best.2 > angle).unwrap_or(true) {
@@ -159,10 +166,10 @@ pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
             .expect("Concave hull is well-formed");
         let next = concave_hull.swap_remove(next);
 
-        sorted_hull.push((curr.i, curr.segment.a));
+        sorted_hull.push((curr.i, curr.point_i));
         curr = next;
     }
-    sorted_hull.push((curr.i, curr.segment.a));
+    sorted_hull.push((curr.i, curr.point_i));
 
     sorted_hull
 }
