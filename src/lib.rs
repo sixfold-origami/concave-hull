@@ -52,6 +52,7 @@ pub(crate) trait HullScalar = Scalar + RealField + Copy + TotalOrder;
 #[cfg(feature = "benches")]
 pub trait HullScalar = Scalar + RealField + Copy + TotalOrder;
 
+#[cfg(feature = "f32")]
 mod f32 {
     /// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
     ///
@@ -88,8 +89,48 @@ mod f32 {
     }
 }
 
+#[cfg(feature = "f64")]
+mod f64 {
+    /// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
+    ///
+    /// This is also the point type used in function signatures and returns
+    pub type Point = parry2d::math::Point<f64>;
+    pub use parry2d_f64 as parry2d;
+
+    use crate::concave::concave_hull_inner;
+
+    /// Computes the concave hull of the provided point cloud, using the provided concavity parameter
+    ///
+    /// Inputs:
+    /// - `points`: A list of points, making up the point cloud to generate the concave hull for.
+    /// It is assumed that this list contains no repeat points.
+    /// - `concavity`: A parameter determining how concave the hull should be.
+    ///
+    /// See the crate-level docs for guidance on picking the concavity parameter.
+    /// The returned [`Vec`] contains a tuple of:
+    /// - The index of the hull point in the original slice
+    /// - The value of the point in the original slice
+    ///
+    /// The points are returned in counter-clockwise order.
+    pub fn concave_hull(points: &[Point], concavity: f64) -> Vec<(usize, Point)> {
+        if points.len() <= 1 {
+            // Degenerate case with too few points to make a convex hull
+            // Just return the original point (or nothing)
+            return points.iter().enumerate().map(|(id, p)| (id, *p)).collect();
+        }
+
+        // Get the convex hull from parry
+        let convex = parry2d::transformation::convex_hull_idx(points);
+
+        concave_hull_inner(points, concavity, convex)
+    }
+}
+
 #[cfg(all(feature = "f32", not(feature = "f64")))]
 pub use f32::*;
+
+#[cfg(all(feature = "f64", not(feature = "f32")))]
+pub use f64::*;
 
 #[cfg(test)]
 mod tests {

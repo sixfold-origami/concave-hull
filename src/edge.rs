@@ -1,4 +1,4 @@
-use parry2d::math::Point;
+use nalgebra::Point2 as Point;
 use std::cmp::Ordering;
 
 use crate::HullScalar;

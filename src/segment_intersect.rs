@@ -1,4 +1,4 @@
-use crate::{Edge, HullScalar};
+use crate::{HullScalar, edge::Edge};
 
 /// Checks if the two provided edges are intersecting
 ///

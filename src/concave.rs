@@ -1,8 +1,8 @@
 use std::collections::{BinaryHeap, HashSet};
 
-use parry2d::math::Point;
+use nalgebra::Point2 as Point;
 
-use crate::{Edge, HullScalar, edges_intersect};
+use crate::{HullScalar, edge::Edge, segment_intersect::edges_intersect};
 
 /// Inner logic for the concave hull functions
 ///
