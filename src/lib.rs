@@ -23,8 +23,8 @@
 //! ## Features
 //!
 //! This crate has two features for precision:
-//! - `f32` (default feature): Enables `f32`-precision versions of the concave hull computation, and relevant re-exports (an `f32`-precision point, for example)
-//! - `f64`: Enables `f32`-precision versions of the concave hull computation, and relevant re-exports (an `f32`-precision point, for example)
+//! - `f32` (default feature): Enables `f32`-precision versions of the concave hull computation and relevant re-exports (an `f32`-precision point, for example)
+//! - `f64`: Enables `f64`-precision versions of the concave hull computation and relevant re-exports (an `f64`-precision point, for example)
 //!
 //! If neither feature is enabled, then this crate has no public exports.
 //! Enabling both simultaneously is supported (cargo features must be purely additive), with relevant functions being exported under the `f32` or `f64` submodules, respectively.
@@ -59,7 +59,7 @@ pub(crate) trait HullScalar = Scalar + RealField + Copy + TotalOrder;
 #[cfg(feature = "benches")]
 pub trait HullScalar = Scalar + RealField + Copy + TotalOrder;
 
-/// Spatial points and concave hull generation for [`f32`] precision
+/// Spatial points and concave hull generation for [`prim@f32`] precision
 #[cfg(feature = "f32")]
 pub mod f32 {
     /// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
@@ -97,7 +97,7 @@ pub mod f32 {
     }
 }
 
-/// Spatial points and concave hull generation for [`f64`] precision
+/// Spatial points and concave hull generation for [`prim@f64`] precision
 #[cfg(feature = "f64")]
 pub mod f64 {
     /// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
