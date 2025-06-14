@@ -3,7 +3,7 @@
 //! Here, we compute the concave hull of a sample point cloud dataset.
 //! To get a better visualization, you can use the CLI tool (found in ../../cli) to generate an image of the hull.
 
-use concave_hull::{Point, concave_hull};
+use concave_hull::f32::{Point, concave_hull};
 
 /// The points from test_data/polygon.csv
 const DATA: [Point; 24] = [
