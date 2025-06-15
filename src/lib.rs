@@ -76,8 +76,8 @@ pub mod f32 {
     /// - `points`: A list of points, making up the point cloud to generate the concave hull for.
     /// It is assumed that this list contains no repeat points.
     /// - `concavity`: A parameter determining how concave the hull should be.
-    ///
     /// See the crate-level docs for guidance on picking the concavity parameter.
+    ///
     /// The returned [`Vec`] contains a tuple of:
     /// - The index of the hull point in the original slice
     /// - The value of the point in the original slice
@@ -114,8 +114,8 @@ pub mod f64 {
     /// - `points`: A list of points, making up the point cloud to generate the concave hull for.
     /// It is assumed that this list contains no repeat points.
     /// - `concavity`: A parameter determining how concave the hull should be.
-    ///
     /// See the crate-level docs for guidance on picking the concavity parameter.
+    ///
     /// The returned [`Vec`] contains a tuple of:
     /// - The index of the hull point in the original slice
     /// - The value of the point in the original slice
