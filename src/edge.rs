@@ -82,26 +82,22 @@ impl Edge<f32> {
 
         let mut offset = 0.;
         if e_v.y < 0. {
-            offset += 2.;
+            offset += 4.;
 
             if e_v.x >= 0.0 {
-                offset += 1.;
+                offset += 2.;
             }
         } else if e_v.y > 0. {
             if e_v.x < 0.0 {
-                offset += 1.;
+                offset += 2.;
             }
         } else {
-            if e_v.x <= 0.0 { return 2. } else { return 0. }
+            if e_v.x <= 0.0 { return 4. } else { return 0. }
         }
 
-        let slope = (e_v.y / e_v.x).tanh();
+        let slope = (e_v.y / e_v.x).tanh() + 1.;
 
-        if slope >= 0. {
-            offset + slope
-        } else {
-            offset + 1. + slope
-        }
+        offset + slope
     }
 }
 
@@ -167,16 +163,16 @@ mod tests {
 
     #[test]
     fn up() {
-        assert_eq!(Edge::new(5, 8, &POINTS).linearized_angle(), 1.);
+        assert_eq!(Edge::new(5, 8, &POINTS).linearized_angle(), 2.);
     }
 
     #[test]
     fn left() {
-        assert_eq!(Edge::new(5, 4, &POINTS).linearized_angle(), 2.);
+        assert_eq!(Edge::new(5, 4, &POINTS).linearized_angle(), 4.);
     }
 
     #[test]
     fn down() {
-        assert_eq!(Edge::new(5, 2, &POINTS).linearized_angle(), 3.);
+        assert_eq!(Edge::new(5, 2, &POINTS).linearized_angle(), 6.);
     }
 }
