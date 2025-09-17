@@ -1,4 +1,6 @@
+use num_traits::NumCast;
 use std::cmp::Ordering;
+
 use {nalgebra::Point2 as Point, nalgebra::Vector2 as Vector};
 
 use crate::HullScalar;
@@ -73,29 +75,53 @@ impl<T: HullScalar> Edge<T> {
 
         (e1, e2)
     }
-}
 
-impl Edge<f32> {
-    pub(crate) fn linearized_angle(&self) -> f32 {
+    /// Determines the linearized angle of the vector from `self.point_i` to `self.point_j`
+    ///
+    /// This angle is measured counter-clockwise from `+X`.
+    /// The value returned from this function is not the actual angle of the vector,
+    /// but it is guaranteed to be monotonically nondecreasing with respect to the actual angle.
+    ///
+    /// The actual range of the function is `[0,8)`, with `0` used for `+X`
+    pub(crate) fn linearized_angle(&self) -> T {
         let e_v = self.point_j - self.point_i;
         debug_assert!(e_v != Vector::zeros(), "Edge has identical endpoints!");
 
-        let mut offset = 0.;
-        if e_v.y < 0. {
-            offset += 4.;
+        // Need to do numcast shenanigans because of generics
+        let zero = NumCast::from(0.).unwrap();
+        let one = NumCast::from(1.).unwrap();
+        let two = NumCast::from(2.).unwrap();
+        let four = NumCast::from(4.).unwrap();
 
-            if e_v.x >= 0.0 {
-                offset += 2.;
+        // Bucket the angle based on which quadrant of the unit circle it falls into
+        let mut offset = zero;
+        if e_v.y < zero {
+            // Pointing roughly downward, put in range [4,8)
+            offset += four;
+
+            if e_v.x >= zero {
+                // Pointing roughly rightward, put in range [6,8)
+                offset += two;
             }
-        } else if e_v.y > 0. {
-            if e_v.x < 0.0 {
-                offset += 2.;
+        } else if e_v.y > zero {
+            // Pointing roughly upward, put in range [0,4)
+            if e_v.x < zero {
+                // Pointing roughly leftward, put in range [2,4)
+                offset += two;
             }
         } else {
-            if e_v.x <= 0.0 { return 4. } else { return 0. }
+            // Special case for horizontal vectors, just return the exact value
+            if e_v.x <= zero {
+                return four;
+            } else {
+                return zero;
+            }
         }
 
-        let slope = (e_v.y / e_v.x).tanh() + 1.;
+        // Add between 0 and 2, based on how steep the angle is
+        // Note: Negative slopes must be handled correctly,
+        //       but any sigmoid will have the appropriate relationship.
+        let slope = (e_v.y / e_v.x).tanh() + one;
 
         offset + slope
     }

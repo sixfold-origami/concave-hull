@@ -36,7 +36,7 @@
 #![feature(trait_alias)]
 
 use nalgebra::{RealField, Scalar};
-use num_traits::float::TotalOrder;
+use num_traits::{NumCast, float::TotalOrder};
 
 mod concave;
 mod edge;
@@ -51,13 +51,13 @@ pub use segment_intersect::edges_intersect;
 ///
 /// In practice, I think this is just the float types
 #[cfg(not(feature = "benches"))]
-pub(crate) trait HullScalar = Scalar + RealField + Copy + TotalOrder;
+pub(crate) trait HullScalar = Scalar + RealField + Copy + TotalOrder + NumCast;
 
 /// Trait bound for scalars we can work with
 ///
 /// In practice, I think this is just the float types
 #[cfg(feature = "benches")]
-pub trait HullScalar = Scalar + RealField + Copy + TotalOrder;
+pub trait HullScalar = Scalar + RealField + Copy + TotalOrder + NumCast;
 
 /// Spatial points and concave hull generation for [`prim@f32`] precision
 #[cfg(feature = "f32")]
