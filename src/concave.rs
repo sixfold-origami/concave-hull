@@ -1,6 +1,7 @@
 use std::collections::{BinaryHeap, HashSet};
 
 use nalgebra::Point2 as Point;
+use num_traits::NumCast;
 
 use crate::{HullScalar, edge::Edge, segment_intersect::edges_intersect};
 
@@ -15,6 +16,8 @@ pub(crate) fn concave_hull_inner<T: HullScalar>(
     concavity: T,
     convex_hull: Vec<usize>,
 ) -> Vec<(usize, Point<T>)> {
+    let eight: T = NumCast::from(8.).unwrap();
+
     if points.len() <= 3 {
         // Degenerate case with enough points for a convex hull, but too few points to make a concave hull
         // Just return the convex hull
@@ -44,17 +47,28 @@ pub(crate) fn concave_hull_inner<T: HullScalar>(
 
             // Find the best point to add in the middle
             // TODO: use a BVH to make this not slow as hell
+            let edge_angle = edge.linearized_angle();
             let mut best: Option<(usize, &Point<T>, T)> = None;
             'points: for (i, p) in points.iter().enumerate() {
                 if i == edge.i || i == edge.j {
                     // Do not consider points that are already on the edge
                     continue 'points;
                 }
-                let e1 = p - edge.point_i;
-                let e2 = edge.point_j - p;
-                let e_v = edge.point_j - edge.point_i;
 
-                let angle = e_v.angle(&e1).max(e_v.angle(&e2));
+                let angle_a = Edge::new(edge.i, i, points).linearized_angle();
+                let angle_b = Edge::new(i, edge.j, points).linearized_angle();
+                let diff_a = if angle_a > edge_angle {
+                    angle_a - edge_angle
+                } else {
+                    eight - edge_angle + angle_a
+                };
+                let diff_b = if angle_b < edge_angle {
+                    edge_angle - angle_b
+                } else {
+                    eight - angle_b + edge_angle
+                };
+
+                let angle = diff_a.max(diff_b);
                 if best.as_ref().map(|best| best.2 > angle).unwrap_or(true) {
                     best = Some((i, p, angle));
                 }

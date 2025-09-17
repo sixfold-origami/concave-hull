@@ -179,7 +179,7 @@ mod tests {
             .iter()
             .for_each(|e| println!("{:?}: {}", e, e.linearized_angle())); // Debugging
 
-        assert!(edges.iter().map(|e| e.linearized_angle()).is_sorted())
+        assert!(edges.iter().map(|e| e.linearized_angle()).is_sorted());
     }
 
     #[test]
