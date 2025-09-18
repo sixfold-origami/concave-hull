@@ -133,8 +133,8 @@ pub(crate) fn concave_hull_f32(
             .collect(),
     );
     let point_qbvh = point_compound.qbvh();
-    let max_window_size = point_compound.local_aabb().extents().max();
-    let window_step_size = max_window_size / 5.; // TODO: I have no idea how to set this
+    let max_window_size = point_compound.local_aabb().extents().max() * 0.6;
+    let window_step_size = max_window_size / 10.; // TODO: I have no idea how to set this
 
     // Heap up the convex edges by length
     let mut edge_heap = BinaryHeap::with_capacity(convex_hull.len());
