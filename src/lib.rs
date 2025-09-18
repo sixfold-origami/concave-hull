@@ -68,7 +68,7 @@ pub mod f32 {
     pub type Point = parry2d::math::Point<f32>;
     pub use parry2d;
 
-    use crate::concave::concave_hull_inner;
+    use crate::concave::concave_hull_f32;
 
     /// Computes the concave hull of the provided point cloud, using the provided concavity parameter
     ///
@@ -93,7 +93,7 @@ pub mod f32 {
         // Get the convex hull from parry
         let convex = parry2d::transformation::convex_hull_idx(points);
 
-        concave_hull_inner(points, concavity, convex)
+        concave_hull_f32(points, concavity, convex)
     }
 }
 
