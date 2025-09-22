@@ -134,7 +134,7 @@ pub(crate) fn concave_hull_f32(
     );
     let point_qbvh = point_compound.qbvh();
     let max_window_size = point_compound.local_aabb().extents().max() * 0.6;
-    let window_step_size = max_window_size / 10.; // TODO: I have no idea how to set this
+    let window_step_size = max_window_size / 6.;
 
     // Heap up the convex edges by length
     let mut edge_heap = BinaryHeap::with_capacity(convex_hull.len());
@@ -191,7 +191,10 @@ pub(crate) fn concave_hull_f32(
                     window.loosen(window_step_size);
                 }
             }
-            let best = best.expect("Point cloud should have at least one point");
+
+            let Some(best) = best else {
+                continue 'edges;
+            };
 
             // Check boundary to avoid creating a degenerate polygon
             // Note: The original paper recommends adding a check to make sure the angle is less than 90 degrees.
