@@ -1,32 +1,30 @@
-use nalgebra::Point2 as Point;
+use crate::{Point, Real};
 use std::cmp::Ordering;
-
-use crate::HullScalar;
 
 /// Helper struct for edges in the hull
 #[derive(Debug, Clone)]
-pub struct Edge<T: HullScalar> {
+pub struct Edge {
     /// Index of the first point
     pub i: usize,
     /// Index of the second point
     pub j: usize,
 
     /// Value of the first point
-    pub point_i: Point<T>,
+    pub point_i: Point,
     /// Value of the second point
-    pub point_j: Point<T>,
+    pub point_j: Point,
 }
 
-impl<T: HullScalar> PartialEq for Edge<T> {
+impl PartialEq for Edge {
     fn eq(&self, other: &Self) -> bool {
         // Only need to check indices
         self.i == other.i && self.j == other.j
     }
 }
 
-impl<T: HullScalar> Eq for Edge<T> {}
+impl Eq for Edge {}
 
-impl<T: HullScalar> Ord for Edge<T> {
+impl Ord for Edge {
     fn cmp(&self, other: &Self) -> Ordering {
         // Edges are always compared based on their length
         // We only care about relative length, so the squared norm is acceptable here
@@ -34,15 +32,15 @@ impl<T: HullScalar> Ord for Edge<T> {
     }
 }
 
-impl<T: HullScalar> PartialOrd for Edge<T> {
+impl PartialOrd for Edge {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl<T: HullScalar> Edge<T> {
+impl Edge {
     /// Constructs a new [`Self`] from a list of points and two (ordered) indices into that list
-    pub fn new(i: usize, j: usize, points: &[Point<T>]) -> Self {
+    pub fn new(i: usize, j: usize, points: &[Point]) -> Self {
         Self {
             i,
             j,
@@ -52,12 +50,12 @@ impl<T: HullScalar> Edge<T> {
     }
 
     #[inline]
-    pub(crate) fn norm_squared(&self) -> T {
+    pub(crate) fn norm_squared(&self) -> Real {
         (self.point_j - self.point_i).norm_squared()
     }
 
     /// Splits self in two by inserting `point` in the middle of the edge
-    pub fn split_by(&self, point: Point<T>, idx: usize) -> (Self, Self) {
+    pub fn split_by(&self, point: Point, idx: usize) -> (Self, Self) {
         let e1 = Self {
             i: self.i,
             j: idx,
