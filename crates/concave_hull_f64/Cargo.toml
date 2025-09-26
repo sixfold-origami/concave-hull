@@ -9,9 +9,11 @@ readme = "README.md"
 edition = "2024"
 keywords = ["concave", "hull", "geometry"]
 
+[lints]
+workspace = true
+
 [features]
 benches = []
-f32 = []
 f64 = []
 required-features = ["f64"]
 default = ["required-features"]
