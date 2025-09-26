@@ -1,11 +1,13 @@
 use std::collections::{BinaryHeap, HashSet};
 
-use crate::parry2d::{
-    self,
-    bounding_volume::{Aabb, BoundingVolume},
-    shape::{Compound, SharedShape},
+use crate::{
+    Point, PointSearchConfig, Real,
+    parry2d::{
+        self,
+        bounding_volume::{Aabb, BoundingVolume},
+        shape::{Compound, SharedShape},
+    },
 };
-use crate::{Point, Real};
 use nalgebra::Isometry2 as Isometry;
 
 use crate::{edge::Edge, segment_intersect::edges_intersect};
@@ -24,7 +26,11 @@ use crate::{edge::Edge, segment_intersect::edges_intersect};
 ///
 /// The points are returned in counter-clockwise order.
 #[inline]
-pub fn concave_hull(points: &[Point], concavity: Real) -> Vec<(usize, Point)> {
+pub fn concave_hull(
+    points: &[Point],
+    concavity: Real,
+    search_config: PointSearchConfig,
+) -> Vec<(usize, Point)> {
     if points.len() <= 1 {
         // Degenerate case with too few points to make a convex hull
         // Just return the original point (or nothing)
@@ -48,8 +54,11 @@ pub fn concave_hull(points: &[Point], concavity: Real) -> Vec<(usize, Point)> {
             .collect(),
     );
     let point_qbvh = point_compound.qbvh();
-    let max_window_size = point_compound.local_aabb().extents().max() * 0.6;
-    let window_step_size = max_window_size / 20.;
+    let mut max_window_size =
+        point_compound.local_aabb().extents().max() * search_config.window_max_size_factor;
+    let window_step_size = max_window_size * search_config.window_step_factor;
+    max_window_size *= 2.; // Double max size to account for the fact that we loosen in all directions
+    max_window_size += window_step_size; // Add an extra step, so that a window which barely passes the threshold is still checked
 
     // Heap up the convex edges by length
     let mut edge_heap = BinaryHeap::with_capacity(convex_hull.len());
@@ -82,11 +91,7 @@ pub fn concave_hull(points: &[Point], concavity: Real) -> Vec<(usize, Point)> {
             );
             let mut candidates = Vec::new();
 
-            while window.extents().min() < max_window_size
-                && best
-                    .map(|(_, _, angle)| angle > crate::FRAC_PI_2)
-                    .unwrap_or(true)
-            {
+            'window: loop {
                 point_qbvh.intersect_aabb(&window, &mut candidates);
                 'candidates: for candidate in candidates.drain(0..) {
                     let i = candidate as usize;
@@ -106,39 +111,40 @@ pub fn concave_hull(points: &[Point], concavity: Real) -> Vec<(usize, Point)> {
                     }
                 }
 
-                if best
-                    .map(|(_, _, angle)| angle > crate::FRAC_PI_2)
-                    .unwrap_or(true)
+                window.loosen(window_step_size);
+
+                if window.extents().min() > max_window_size
+                    || best
+                        .map(|(_, _, angle)| angle < search_config.bad_angle_threshold)
+                        .unwrap_or_default()
                 {
-                    window.loosen(window_step_size);
+                    break 'window;
                 }
             }
 
-            let Some(best) = best else {
-                continue 'edges;
+            if let Some(best) = best {
+                // Check boundary to avoid creating a degenerate polygon
+                // Note: The original paper recommends adding a check to make sure the angle is less than 90 degrees.
+                //       I did a ton of testing and I could not find a single case where this made a difference
+                //       in the final hull, even though the check was hit multiple times.
+                //       So, I ommitted it for performance.
+                if !boundary_points.contains(&best.0) {
+                    let (e1, e2) = edge.split_by(*best.1, best.0);
+
+                    // Check if the new edges would intersect any existing ones
+                    // TODO: BVH might be faster? Hard to say given how frequently we'd be adding new segments
+                    if concave_hull
+                        .iter()
+                        .chain(edge_heap.iter())
+                        .all(|edge| !(edges_intersect(edge, &e1) || edges_intersect(edge, &e2)))
+                    {
+                        edge_heap.push(e1);
+                        edge_heap.push(e2);
+                        boundary_points.insert(best.0);
+                        continue 'edges;
+                    }
+                }
             };
-
-            // Check boundary to avoid creating a degenerate polygon
-            // Note: The original paper recommends adding a check to make sure the angle is less than 90 degrees.
-            //       I did a ton of testing and I could not find a single case where this made a difference
-            //       in the final hull, even though the check was hit multiple times.
-            //       So, I ommitted it for performance.
-            if !boundary_points.contains(&best.0) {
-                let (e1, e2) = edge.split_by(*best.1, best.0);
-
-                // Check if the new edges would intersect any existing ones
-                // TODO: BVH might be faster? Hard to say given how frequently we'd be adding new segments
-                if concave_hull
-                    .iter()
-                    .chain(edge_heap.iter())
-                    .all(|edge| !(edges_intersect(edge, &e1) || edges_intersect(edge, &e2)))
-                {
-                    edge_heap.push(e1);
-                    edge_heap.push(e2);
-                    boundary_points.insert(best.0);
-                    continue 'edges;
-                }
-            }
         }
 
         concave_hull.push(edge);

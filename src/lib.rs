@@ -31,6 +31,7 @@
 #![feature(trait_alias)]
 
 mod concave;
+mod config;
 mod edge;
 mod segment_intersect;
 
@@ -54,7 +55,7 @@ mod f32 {
     pub use parry2d;
 }
 
-pub use concave::concave_hull;
+pub use {concave::concave_hull, config::PointSearchConfig};
 
 #[cfg(feature = "f32")]
 pub use f32::*;
@@ -105,25 +106,25 @@ mod tests {
 
         #[test]
         fn zero_points() {
-            let hull = concave_hull(&POINTS[0..0], 10.);
+            let hull = concave_hull(&POINTS[0..0], 10., Default::default());
             assert_eq!(hull, Vec::new());
         }
 
         #[test]
         fn one_point() {
-            let hull = concave_hull(&POINTS[0..1], 10.);
+            let hull = concave_hull(&POINTS[0..1], 10., Default::default());
             assert_eq!(hull, Vec::from([(0, POINTS[0])]));
         }
 
         #[test]
         fn two_points() {
-            let hull = concave_hull(&POINTS[0..2], 10.);
+            let hull = concave_hull(&POINTS[0..2], 10., Default::default());
             assert_eq!(hull, Vec::from([(0, POINTS[0]), (1, POINTS[1])]));
         }
 
         #[test]
         fn three_points() {
-            let hull = concave_hull(&POINTS[0..3], 10.);
+            let hull = concave_hull(&POINTS[0..3], 10., Default::default());
             assert_eq!(
                 hull,
                 Vec::from([(0, POINTS[0]), (2, POINTS[2]), (1, POINTS[1]),])
@@ -132,7 +133,11 @@ mod tests {
 
         #[test]
         fn square() {
-            let hull = concave_hull(&[POINTS[1], POINTS[2], POINTS[4], POINTS[5]], 10.);
+            let hull = concave_hull(
+                &[POINTS[1], POINTS[2], POINTS[4], POINTS[5]],
+                10.,
+                Default::default(),
+            );
             assert_eq!(
                 hull,
                 Vec::from([
@@ -172,7 +177,7 @@ mod tests {
         #[test]
         fn reasonable_concave() {
             let points = load_question_mark();
-            let hull = concave_hull(&points, 40.);
+            let hull = concave_hull(&points, 40., Default::default());
 
             let expected = Vec::from([
                 (16, Point::new(187.0, 87.0)),
@@ -228,7 +233,7 @@ mod tests {
         #[test]
         fn maximally_concave() {
             let points = load_question_mark();
-            let hull = concave_hull(&points, 0.);
+            let hull = concave_hull(&points, 0., Default::default());
 
             let expected = Vec::from([
                 (21, Point::new(163.0, 208.0)),
@@ -321,7 +326,7 @@ mod tests {
         #[test]
         fn minimally_concave() {
             let points = load_question_mark();
-            let hull = concave_hull(&points, Real::INFINITY);
+            let hull = concave_hull(&points, Real::INFINITY, Default::default());
 
             let expected = Vec::from([
                 (50, Point::new(211.0, 466.0)),

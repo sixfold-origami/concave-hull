@@ -2,7 +2,7 @@ use std::{fs::File, path::PathBuf};
 
 use anyhow::Ok;
 use clap::Parser;
-use concave_hull::{Point, concave_hull};
+use concave_hull::{Point, PointSearchConfig, concave_hull};
 use csv::{ReaderBuilder, Writer};
 
 use crate::drawing::draw_points_and_hull;
@@ -41,7 +41,7 @@ fn main() -> anyhow::Result<()> {
     println!(
         "Generating concave hull for {} [concavity: {}]",
         input.display(),
-        args.concavity
+        args.concavity,
     );
 
     // Read input points
@@ -62,7 +62,11 @@ fn main() -> anyhow::Result<()> {
         .collect::<Result<Vec<_>, _>>()?;
 
     // Generate hull
-    let hull = concave_hull(&in_points, args.concavity);
+    let hull = concave_hull(
+        &in_points,
+        args.concavity,
+        PointSearchConfig::BALANCED_FULL_EXTENTS,
+    );
 
     // Output
     if point_output.is_none() && img_output.is_none() {

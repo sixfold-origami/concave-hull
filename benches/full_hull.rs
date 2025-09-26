@@ -1,6 +1,6 @@
 use std::{fs::File, time::Duration};
 
-use concave_hull::{Real, concave_hull, parry2d::math::Point};
+use concave_hull::{PointSearchConfig, Real, concave_hull, parry2d::math::Point};
 use criterion::{Criterion, criterion_group, criterion_main};
 use csv::ReaderBuilder;
 
@@ -27,17 +27,21 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .measurement_time(Duration::from_secs_f32(60.))
         .sample_size(1000);
 
+    let config = PointSearchConfig::default();
+
     let polygon = load_data("../../test_data/polygon.csv");
-    group.bench_function("polygon", |b| b.iter(|| concave_hull(&polygon, 40.)));
+    group.bench_function("polygon", |b| {
+        b.iter(|| concave_hull(&polygon, 40., config))
+    });
 
     let question_mark = load_data("../../test_data/question_mark.csv");
     group.bench_function("question mark", |b| {
-        b.iter(|| concave_hull(&question_mark, 40.))
+        b.iter(|| concave_hull(&question_mark, 40., config))
     });
 
     let concaveman_1k = load_data("../../test_data/concaveman_1k.csv");
     group.bench_function("concaveman_1k", |b| {
-        b.iter(|| concave_hull(&concaveman_1k, 1000.))
+        b.iter(|| concave_hull(&concaveman_1k, 1000., config))
     });
 }
 
