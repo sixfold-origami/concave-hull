@@ -15,13 +15,12 @@ workspace = true
 [features]
 benches = []
 f64 = []
-required-features = ["f64"]
-default = ["required-features"]
+default = ["f64"]
 
 [lib]
 name = "concave_hull"
 path = "../../src/lib.rs"
-required-features = ["required-features"]
+required-features = ["f64"]
 doctest = false
 
 [profile.release]
