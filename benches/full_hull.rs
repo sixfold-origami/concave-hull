@@ -1,11 +1,10 @@
 use std::{fs::File, time::Duration};
 
-use concave_hull::concave_hull;
+use concave_hull::{Real, concave_hull, parry2d::math::Point};
 use criterion::{Criterion, criterion_group, criterion_main};
 use csv::ReaderBuilder;
-use parry2d::math::Point;
 
-fn load_data(path: &str) -> Vec<Point<f32>> {
+fn load_data(path: &str) -> Vec<Point<Real>> {
     let f = File::open(path).unwrap();
 
     let mut reader = ReaderBuilder::new().has_headers(false).from_reader(f);
@@ -17,7 +16,7 @@ fn load_data(path: &str) -> Vec<Point<f32>> {
             let x = r[0].parse().unwrap();
             let y = r[1].parse().unwrap();
 
-            Point::<f32>::new(x, y)
+            Point::<Real>::new(x, y)
         })
         .collect()
 }

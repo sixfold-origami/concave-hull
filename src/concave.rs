@@ -1,6 +1,7 @@
 use std::collections::{BinaryHeap, HashSet};
 
 use crate::parry2d::{
+    self,
     bounding_volume::{Aabb, BoundingVolume},
     shape::{Compound, SharedShape},
 };

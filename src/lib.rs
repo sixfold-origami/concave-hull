@@ -61,7 +61,7 @@ pub trait HullScalar = Scalar + RealField + Copy + TotalOrder;
 
 /// Re-exports and types when in f32 mode
 #[cfg(feature = "f32")]
-mod f32_2 {
+mod f32 {
     /// The number type used throughout this crate
     pub use f32 as Real;
 
@@ -75,11 +75,11 @@ mod f32_2 {
 pub use concave::concave_hull;
 
 #[cfg(feature = "f32")]
-pub use f32_2::*;
+pub use f32::*;
 
 // Re-exports and types when in f64 mode
 #[cfg(feature = "f64")]
-mod f64_2 {
+mod f64 {
     /// The number type used throughout this crate
     pub use f64 as Real;
 
@@ -91,7 +91,7 @@ mod f64_2 {
 }
 
 #[cfg(feature = "f64")]
-pub use f64_2::*;
+pub use f64::*;
 
 #[cfg(test)]
 mod tests {
@@ -169,7 +169,7 @@ mod tests {
         use super::*;
 
         fn load_question_mark() -> Vec<Point> {
-            let f = File::open("./test_data/question_mark.csv").unwrap();
+            let f = File::open("../../test_data/question_mark.csv").unwrap();
 
             let mut reader = ReaderBuilder::new().has_headers(false).from_reader(f);
 
@@ -337,7 +337,7 @@ mod tests {
         #[test]
         fn minimally_concave() {
             let points = load_question_mark();
-            let hull = concave_hull(&points, f32::INFINITY);
+            let hull = concave_hull(&points, Real::INFINITY);
 
             let expected = Vec::from([
                 (50, Point::new(211.0, 466.0)),

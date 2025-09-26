@@ -1,0 +1,47 @@
+[package]
+name = "concave_hull_f64"
+description = "A Rust implementation of the Gift Opening concave hull algorithm"
+version = "0.2.0"
+authors = ["Rose Peck"]
+repository = "https://github.com/sixfold-origami/concave-hull"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+edition = "2024"
+keywords = ["concave", "hull", "geometry"]
+
+[features]
+benches = []
+f32 = []
+f64 = []
+required-features = ["f64"]
+default = ["required-features"]
+
+[lib]
+name = "concave_hull"
+path = "../../src/lib.rs"
+required-features = ["required-features"]
+doctest = false
+
+[profile.release]
+codegen-units = 1
+lto = 'fat'
+
+[dependencies]
+nalgebra = "0.33.2"
+num-traits = "0.2.19"
+parry2d-f64 = { version = "0.21.1" }
+
+[dev-dependencies]
+concave_hull_f64 = { path = ".", features = ["benches"] }
+criterion = { version = "0.5", features = ["html_reports"] }
+csv = "1.3.1"
+
+[[bench]]
+name = "full_hull"
+path = "../../benches/full_hull.rs"
+harness = false
+
+[[bench]]
+name = "segment_intersection"
+path = "../../benches/segment_intersection.rs"
+harness = false
