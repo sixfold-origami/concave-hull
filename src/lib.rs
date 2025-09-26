@@ -22,15 +22,10 @@
 //!
 //! ## Features
 //!
-//! This crate has two features for precision:
-//! - `f32` (default feature): Enables `f32`-precision versions of the concave hull computation and relevant re-exports (an `f32`-precision point, for example)
-//! - `f64`: Enables `f64`-precision versions of the concave hull computation and relevant re-exports (an `f64`-precision point, for example)
-//!
-//! If neither feature is enabled, then this crate has no public exports.
-//! Enabling both simultaneously is supported (cargo features must be purely additive), with relevant functions being exported under the `f32` or `f64` submodules, respectively.
-//!
-//! This crate has one additional feature, `benches`, which is only used for benchmarks.
-//! End users of this library should never enable it.
+//! This crate has sevearl features, but end-users should not enable any of them.
+//! The `f32` and `f64` features are disjoint, and are used to control the numerical precision.
+//! These are exposed to users as two separate crates: `concave_hull` and `concave_hull_f64`.
+//! The other feature is `benches`, which is used for benchmarks.
 
 #![warn(missing_docs)]
 #![feature(trait_alias)]
