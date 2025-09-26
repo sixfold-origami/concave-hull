@@ -6,3 +6,7 @@ members = ["cli", "crates/concave_hull", "crates/concave_hull_f64"]
 rust.unexpected_cfgs = { level = "warn", check-cfg = [
 	'cfg(feature, values("f32", "f64"))',
 ] }
+
+[profile.release]
+codegen-units = 1
+lto = 'fat'

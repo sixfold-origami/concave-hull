@@ -23,10 +23,6 @@ path = "../../src/lib.rs"
 required-features = ["f32"]
 doctest = false
 
-[profile.release]
-codegen-units = 1
-lto = 'fat'
-
 [dependencies]
 nalgebra = "0.33.2"
 num-traits = "0.2.19"
