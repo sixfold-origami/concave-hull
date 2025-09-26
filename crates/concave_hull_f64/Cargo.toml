@@ -24,14 +24,13 @@ required-features = ["f64"]
 doctest = false
 
 [dependencies]
-nalgebra = "0.33.2"
-num-traits = "0.2.19"
-parry2d-f64 = { version = "0.21.1" }
+nalgebra.workspace = true
+parry2d-f64.workspace = true
 
 [dev-dependencies]
 concave_hull_f64 = { path = ".", features = ["benches"] }
-criterion = { version = "0.5", features = ["html_reports"] }
-csv = "1.3.1"
+criterion.workspace = true
+csv.workspace = true
 
 [[bench]]
 name = "full_hull"
