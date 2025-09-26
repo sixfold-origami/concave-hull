@@ -49,7 +49,7 @@ pub fn concave_hull(points: &[Point], concavity: Real) -> Vec<(usize, Point)> {
     );
     let point_qbvh = point_compound.qbvh();
     let max_window_size = point_compound.local_aabb().extents().max() * 0.6;
-    let window_step_size = max_window_size / 6.;
+    let window_step_size = max_window_size / 20.;
 
     // Heap up the convex edges by length
     let mut edge_heap = BinaryHeap::with_capacity(convex_hull.len());
@@ -82,7 +82,11 @@ pub fn concave_hull(points: &[Point], concavity: Real) -> Vec<(usize, Point)> {
             );
             let mut candidates = Vec::new();
 
-            while window.extents().min() < max_window_size && best.is_none() {
+            while window.extents().min() < max_window_size
+                && best
+                    .map(|(_, _, angle)| angle > crate::FRAC_PI_2)
+                    .unwrap_or(true)
+            {
                 point_qbvh.intersect_aabb(&window, &mut candidates);
                 'candidates: for candidate in candidates.drain(0..) {
                     let i = candidate as usize;
@@ -102,7 +106,10 @@ pub fn concave_hull(points: &[Point], concavity: Real) -> Vec<(usize, Point)> {
                     }
                 }
 
-                if best.is_none() {
+                if best
+                    .map(|(_, _, angle)| angle > crate::FRAC_PI_2)
+                    .unwrap_or(true)
+                {
                     window.loosen(window_step_size);
                 }
             }

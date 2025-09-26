@@ -45,6 +45,8 @@ mod f32 {
     /// The number type used throughout this crate
     pub use f32 as Real;
 
+    pub(crate) const FRAC_PI_2: f32 = std::f32::consts::FRAC_PI_2;
+
     /// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
     ///
     /// This is also the point type used in function signatures and returns
@@ -62,6 +64,8 @@ pub use f32::*;
 mod f64 {
     /// The number type used throughout this crate
     pub use f64 as Real;
+
+    pub(crate) const FRAC_PI_2: f64 = std::f64::consts::FRAC_PI_2;
 
     /// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
     ///
