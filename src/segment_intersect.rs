@@ -1,10 +1,12 @@
-use crate::{HullScalar, edge::Edge};
+use std::ops::Neg;
+
+use crate::edge::Edge;
 
 /// Checks if the two provided edges are intersecting
 ///
 /// Assumes that distinct indices point to distinct points.
 /// i.e. if two indices are different, then the points are in different places.
-pub fn edges_intersect<T: HullScalar>(e1: &Edge<T>, e2: &Edge<T>) -> bool {
+pub fn edges_intersect(e1: &Edge, e2: &Edge) -> bool {
     // Edges are mirrors of each other
     debug_assert!(!(e1.i == e2.j && e2.i == e1.j), "Found mirrored edges");
     // Only possible if the winding gets messed up
@@ -40,11 +42,11 @@ pub fn edges_intersect<T: HullScalar>(e1: &Edge<T>, e2: &Edge<T>) -> bool {
 
         // Equivalent to: (t_num/t_denom) >= 0. && (t_num/t_denom) <= 1. && (u_num/u_denom) >= 0. && (u_num/u_denom) <= 1.
         // But faster!
-        t_denom != T::zero()
-            && t_num * t_denom >= T::zero()
+        t_denom != 0.
+            && t_num * t_denom >= 0.
             && t_num.abs() <= t_denom.abs()
-            && u_denom != T::zero()
-            && u_num * u_denom >= T::zero()
+            && u_denom != 0.
+            && u_num * u_denom >= 0.
             && u_num.abs() <= u_denom.abs()
     }
 }

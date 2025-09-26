@@ -64,7 +64,7 @@ pub fn concave_hull(points: &[Point], concavity: Real) -> Vec<(usize, Point)> {
 
     // Start opening the gift
     let concavity = concavity.powi(2); // Square the concavity limit to make the comparisons slightly faster
-    let mut concave_hull: Vec<Edge<Real>> = Vec::with_capacity(convex_hull.len());
+    let mut concave_hull: Vec<Edge> = Vec::with_capacity(convex_hull.len());
 
     'edges: while let Some(edge) = edge_heap.pop() {
         // TODO: scale this check based on local density?
