@@ -59,85 +59,43 @@ pub(crate) trait HullScalar = Scalar + RealField + Copy + TotalOrder;
 #[cfg(feature = "benches")]
 pub trait HullScalar = Scalar + RealField + Copy + TotalOrder;
 
-/// Spatial points and concave hull generation for [`prim@f32`] precision
+/// Re-exports and types when in f32 mode
 #[cfg(feature = "f32")]
-pub mod f32 {
+mod f32_2 {
+    /// The number type used throughout this crate
+    pub use f32 as Real;
+
     /// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
     ///
     /// This is also the point type used in function signatures and returns
     pub type Point = parry2d::math::Point<f32>;
     pub use parry2d;
-
-    use crate::concave::concave_hull_f32;
-
-    /// Computes the concave hull of the provided point cloud, using the provided concavity parameter
-    ///
-    /// Inputs:
-    /// - `points`: A list of points, making up the point cloud to generate the concave hull for.
-    /// It is assumed that this list contains no repeat points.
-    /// - `concavity`: A parameter determining how concave the hull should be.
-    /// See the crate-level docs for guidance on picking the concavity parameter.
-    ///
-    /// The returned [`Vec`] contains a tuple of:
-    /// - The index of the hull point in the original slice
-    /// - The value of the point in the original slice
-    ///
-    /// The points are returned in counter-clockwise order.
-    pub fn concave_hull(points: &[Point], concavity: f32) -> Vec<(usize, Point)> {
-        if points.len() <= 1 {
-            // Degenerate case with too few points to make a convex hull
-            // Just return the original point (or nothing)
-            return points.iter().enumerate().map(|(id, p)| (id, *p)).collect();
-        }
-
-        // Get the convex hull from parry
-        let convex = parry2d::transformation::convex_hull_idx(points);
-
-        concave_hull_f32(points, concavity, convex)
-    }
 }
 
-/// Spatial points and concave hull generation for [`prim@f64`] precision
+pub use concave::concave_hull;
+
+#[cfg(feature = "f32")]
+pub use f32_2::*;
+
+// Re-exports and types when in f64 mode
 #[cfg(feature = "f64")]
-pub mod f64 {
+mod f64_2 {
+    /// The number type used throughout this crate
+    pub use f64 as Real;
+
     /// [`parry2d`]'s point type, which [`concave_hull`] uses internally for all its math
     ///
     /// This is also the point type used in function signatures and returns
     pub type Point = parry2d::math::Point<f64>;
     pub use parry2d_f64 as parry2d;
-
-    use crate::concave::concave_hull_inner;
-
-    /// Computes the concave hull of the provided point cloud, using the provided concavity parameter
-    ///
-    /// Inputs:
-    /// - `points`: A list of points, making up the point cloud to generate the concave hull for.
-    /// It is assumed that this list contains no repeat points.
-    /// - `concavity`: A parameter determining how concave the hull should be.
-    /// See the crate-level docs for guidance on picking the concavity parameter.
-    ///
-    /// The returned [`Vec`] contains a tuple of:
-    /// - The index of the hull point in the original slice
-    /// - The value of the point in the original slice
-    ///
-    /// The points are returned in counter-clockwise order.
-    pub fn concave_hull(points: &[Point], concavity: f64) -> Vec<(usize, Point)> {
-        if points.len() <= 1 {
-            // Degenerate case with too few points to make a convex hull
-            // Just return the original point (or nothing)
-            return points.iter().enumerate().map(|(id, p)| (id, *p)).collect();
-        }
-
-        // Get the convex hull from parry
-        let convex = parry2d::transformation::convex_hull_idx(points);
-
-        concave_hull_inner(points, concavity, convex)
-    }
 }
+
+#[cfg(feature = "f64")]
+pub use f64_2::*;
 
 #[cfg(test)]
 mod tests {
-    use super::f32::*;
+    use super::*;
 
     mod small_clouds {
         use super::*;
