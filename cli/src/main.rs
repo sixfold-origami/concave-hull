@@ -62,11 +62,7 @@ fn main() -> anyhow::Result<()> {
         .collect::<Result<Vec<_>, _>>()?;
 
     // Generate hull
-    let hull = concave_hull(
-        &in_points,
-        args.concavity,
-        PointSearchConfig::BALANCED_FULL_EXTENTS,
-    );
+    let hull = concave_hull(&in_points, args.concavity, PointSearchConfig::default());
 
     // Output
     if point_output.is_none() && img_output.is_none() {

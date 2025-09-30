@@ -18,7 +18,7 @@ f64 = []
 default = ["f64"]
 
 [lib]
-name = "concave_hull"
+name = "concave_hull_f64"
 path = "../../src/lib.rs"
 required-features = ["f64"]
 doctest = false
