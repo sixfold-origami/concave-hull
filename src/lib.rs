@@ -235,7 +235,7 @@ mod tests {
         #[test]
         fn maximally_concave() {
             let points = load_question_mark();
-            let hull = concave_hull(&points, 0., Default::default());
+            let hull = concave_hull(&points, 0., PointSearchConfig::SEARCH_ALL_POINTS);
 
             let expected = Vec::from([
                 (21, Point::new(163.0, 208.0)),

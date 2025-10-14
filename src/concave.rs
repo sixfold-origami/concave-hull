@@ -19,6 +19,10 @@ use crate::{edge::Edge, segment_intersect::edges_intersect};
 /// It is assumed that this list contains no repeat points.
 /// - `concavity`: A parameter determining how concave the hull should be.
 /// See the crate-level docs for guidance on picking the concavity parameter.
+/// - `search_config`: Configuration options for point search.
+/// This can control the tradeoff between runtime and quality of the final hull.
+/// See [`PointSearchConfig`] for details.
+/// If you're uncertain of what to use, [`PointSearchConfig::default()`] provides reasonable defaults.
 ///
 /// The returned [`Vec`] contains a tuple of:
 /// - The index of the hull point in the original slice
