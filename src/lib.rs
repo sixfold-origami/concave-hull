@@ -28,7 +28,6 @@
 //! The other feature is `benches`, which is used for benchmarks.
 
 #![warn(missing_docs)]
-#![feature(trait_alias)]
 
 mod concave;
 mod config;
